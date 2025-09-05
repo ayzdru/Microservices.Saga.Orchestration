@@ -1,0 +1,14 @@
+﻿using Identity.BusinessLogic.Dtos.Configuration;
+using Identity.AuditLogging.Events;
+
+namespace Identity.BusinessLogic.Events.ApiResource;
+
+public class ApiResourcePropertyAddedEvent : AuditEvent
+{
+    public ApiResourcePropertyAddedEvent(ApiResourcePropertiesDto apiResourceProperty)
+    {
+        ApiResourceProperty = apiResourceProperty;
+    }
+
+    public ApiResourcePropertiesDto ApiResourceProperty { get; set; }
+}

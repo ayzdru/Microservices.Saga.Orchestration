@@ -1,0 +1,20 @@
+{
+  "profiles": {
+    "Identity": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "applicationUrl": "https://localhost:44303"
+    },
+    "EFMigration": {
+      "commandName": "Project",
+      "commandLineArgs": "/migrateonly",
+      "launchBrowser": false,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      }
+    }
+  }
+}

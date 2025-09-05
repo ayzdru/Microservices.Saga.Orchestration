@@ -1,0 +1,18 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+	  <TargetFramework>net9.0</TargetFramework>
+	  <Description>Entity Framework layer for the administration of the IdentityServer4</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Reborn.IdentityServer4.EntityFramework" Version="9.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="9.0.0" />
+    
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Identity.AuditLogging.EntityFramework\Identity.AuditLogging.EntityFramework.csproj" />
+    <ProjectReference Include="..\Identity.EntityFramework.Extensions\Identity.EntityFramework.Extensions.csproj" />
+  </ItemGroup>
+</Project>

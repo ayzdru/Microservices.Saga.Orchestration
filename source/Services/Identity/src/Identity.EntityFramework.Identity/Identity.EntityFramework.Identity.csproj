@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+	  <TargetFramework>net9.0</TargetFramework>
+	  <Description>Entity Framework layer for the administration of the Asp.Net Core Identity and IdentityServer4</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Reborn.IdentityServer4.EntityFramework" Version="9.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="9.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Identity.EntityFramework\Identity.EntityFramework.csproj" />
+  </ItemGroup>
+
+</Project>

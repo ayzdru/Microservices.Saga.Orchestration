@@ -1,0 +1,17 @@
+﻿global using System;
+global using HealthChecks.UI.Client;
+global using Microsoft.AspNetCore.Builder;
+global using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+global using Microsoft.AspNetCore.Hosting;
+global using Microsoft.Extensions.Configuration;
+global using Microsoft.Extensions.DependencyInjection;
+global using Microsoft.Extensions.Hosting;
+global using Identity.EntityFramework.Shared.DbContexts;
+global using Identity.EntityFramework.Shared.Entities.Identity;
+global using Identity.Shared.Configuration.Helpers;
+global using Identity.STS.Identity.Configuration;
+global using Identity.STS.Identity.Configuration.Constants;
+global using Identity.STS.Identity.Configuration.Interfaces;
+global using Identity.STS.Identity.Helpers;
+global using System.IO;
+global using Serilog;
