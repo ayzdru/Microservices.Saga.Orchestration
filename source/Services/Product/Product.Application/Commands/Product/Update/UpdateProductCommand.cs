@@ -18,9 +18,9 @@ namespace CleanArchitecture.Application.Commands
         public string Name { get; init; }
         public decimal Price { get; init; }
         public int Stock { get; init; }
-        public UpdateProductCommand(Guid ıd, string name, decimal price, int stock)
+        public UpdateProductCommand(Guid id, string name, decimal price, int stock)
         {
-            Id = ıd;
+            Id = id;
             Name = name;
             Price = price;
             Stock = stock;

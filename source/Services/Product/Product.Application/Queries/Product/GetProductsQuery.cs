@@ -23,9 +23,9 @@ namespace CleanArchitecture.Application.Queries
         {
             _applicationDbContext = applicationDbContext;
         }
-        public Task<List<GetProductsQueryResponse>> Handle(GetProductsQuery request, CancellationToken cancellationToken)
+        public async Task<List<GetProductsQueryResponse>> Handle(GetProductsQuery request, CancellationToken cancellationToken)
         {
-            return _applicationDbContext.Products.Select(q => new GetProductsQueryResponse(q.Id, q.Name, q.Price, q.Stock)).ToListAsync(cancellationToken);
+            return await _applicationDbContext.Products.Select(q => new GetProductsQueryResponse(q.Id, q.Name, q.Price, q.Stock)).ToListAsync(cancellationToken);
         }
     }
 }
