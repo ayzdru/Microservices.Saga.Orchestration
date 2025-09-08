@@ -17,7 +17,7 @@ namespace Microservices.Saga.Orchestration.Shared.Infrastructure.Data
     public class OrderStateDbContext :
     SagaDbContext
     {
-        public DbSet<Order> Orders { get; set; }
+        public DbSet<Entities.OrderState> OrderStates { get; set; }
         public OrderStateDbContext(DbContextOptions<OrderStateDbContext> options)
             : base(options)
         {
@@ -41,7 +41,7 @@ namespace Microservices.Saga.Orchestration.Shared.Infrastructure.Data
 
         static void MapOrder(ModelBuilder modelBuilder)
         {
-            EntityTypeBuilder<Order> order = modelBuilder.Entity<Order>();
+            EntityTypeBuilder<Entities.OrderState> order = modelBuilder.Entity<Entities.OrderState>();
 
             order.Property(x => x.Id);
             order.HasKey(x => x.Id);

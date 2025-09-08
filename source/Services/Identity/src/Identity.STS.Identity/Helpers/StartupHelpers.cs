@@ -210,7 +210,7 @@ public static class StartupHelpers
         if(isDevelopment == true)
         {
             Console.WriteLine("*************************************** .NET ASPIRE ***************************************");
-            var databaseConnectionString = configuration.GetConnectionString("idsrv4");
+            var databaseConnectionString = configuration.GetConnectionString("Identity");
             identityConnectionString = configurationConnectionString = persistedGrantsConnectionString = dataProtectionConnectionString = databaseConnectionString;
         }
 
@@ -468,7 +468,7 @@ public static class StartupHelpers
         if (isDevelopment == true)
         {
             Console.WriteLine("*************************************** .NET ASPIRE ***************************************");
-            var databaseConnectionString = configuration.GetConnectionString("idsrv4");
+            var databaseConnectionString = configuration.GetConnectionString("Identity");
             configurationDbConnectionString = persistedGrantsDbConnectionString = identityDbConnectionString = dataProtectionDbConnectionString = databaseConnectionString;
         }
         var healthChecksBuilder = services.AddHealthChecks()

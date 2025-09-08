@@ -22,22 +22,22 @@ namespace Microservices.Saga.Orchestration.Shared
             _publishEndpoint = publishEndpoint;
         }
 
-        public async Task<Order> SubmitOrder(List<OrderItem> orderItems)
+        public async Task<OrderState> SubmitOrder(List<OrderItem> orderItems)
         {
-            var order = new Order
+            var orderState = new OrderState
             {
                 OrderId = NewId.NextGuid(),
                 OrderDate = DateTime.UtcNow,
                 TotalPrice = orderItems.Sum(q => q.Count * q.Price)
             };
 
-            await _dbContext.Set<Order>().AddAsync(order);
+            await _dbContext.Set<OrderState>().AddAsync(orderState);
 
             await _publishEndpoint.Publish(new OrderStartedEvent
             {
-                OrderId = order.OrderId,
+                OrderId = orderState.OrderId,
                 OrderItems = orderItems,
-                TotalPrice = order.TotalPrice
+                TotalPrice = orderState.TotalPrice
             });
 
             try
@@ -49,7 +49,7 @@ namespace Microservices.Saga.Orchestration.Shared
                 throw new DuplicateOrderException("Duplicate order", exception);
             }
 
-            return order;
+            return orderState;
         }
     }
 }

@@ -18,7 +18,7 @@
     <ProjectReference Include="..\Services\Order\Order.API\Order.API.csproj" />
     <ProjectReference Include="..\Services\Payment\Payment.API\Payment.API.csproj" />
     <ProjectReference Include="..\Services\Product\Product.API\Product.API.csproj" />
-    <ProjectReference Include="..\Web\Microservices.Saga.Orchestration.Web\Microservices.Saga.Orchestration.Web.csproj" />
+    <ProjectReference Include="..\Web\BlazorWebAppOidc\BlazorWebAppOidc.csproj" />
   </ItemGroup>
 
   <ItemGroup>

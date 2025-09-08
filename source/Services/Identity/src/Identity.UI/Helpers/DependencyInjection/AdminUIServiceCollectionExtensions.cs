@@ -138,7 +138,7 @@ public static class AdminUiServiceCollectionExtensions
             Console.WriteLine("*************************************** .NET ASPIRE ***************************************");
             var serviceProvider = services.BuildServiceProvider();
             var configuration = serviceProvider.GetRequiredService<IConfiguration>();
-            var databaseConnectionString = configuration.GetConnectionString("idsrv4");
+            var databaseConnectionString = configuration.GetConnectionString("Identity");
             options.ConnectionStrings.SetConnections(databaseConnectionString);
         }
         // Add DbContexts for Asp.Net Core Identity, Logging and IdentityServer - Configuration store and Operational store

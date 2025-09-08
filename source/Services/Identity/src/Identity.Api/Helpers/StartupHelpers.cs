@@ -159,7 +159,7 @@ public static class StartupHelpers
         if (isDevelopment == true)
         {
             Console.WriteLine("*************************************** .NET ASPIRE ***************************************");
-            var databaseConnectionString = configuration.GetConnectionString("idsrv4");
+            var databaseConnectionString = configuration.GetConnectionString("Identity");
             connectionStrings.SetConnections(databaseConnectionString);
         }
         switch (databaseProvider.ProviderType)
@@ -316,7 +316,7 @@ public static class StartupHelpers
         if (isDevelopment == true)
         {
             Console.WriteLine("*************************************** .NET ASPIRE ***************************************");
-            var databaseConnectionString = configuration.GetConnectionString("idsrv4");
+            var databaseConnectionString = configuration.GetConnectionString("Identity");
             configurationDbConnectionString = persistedGrantsDbConnectionString = identityDbConnectionString = logDbConnectionString = auditLogDbConnectionString = dataProtectionDbConnectionString = databaseConnectionString;
         }
 

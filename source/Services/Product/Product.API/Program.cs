@@ -8,10 +8,8 @@ namespace Product.API
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
-            // appsettings.json'dan ayarlarý çekiyoruz
-            var jwtSettings = builder.Configuration.GetSection("JwtBearer");
 
-            // JWT Bearer authentication ekle
+            var jwtSettings = builder.Configuration.GetSection("JwtBearer");
             builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
                 {
@@ -20,7 +18,6 @@ namespace Product.API
                     options.RequireHttpsMetadata = bool.Parse(jwtSettings["RequireHttpsMetadata"] ?? "true");
                     options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
                     {
-                        // Keycloak tokenlarýnda "aud" (audience) kontrolü için
                         ValidateAudience = true
                     };
                 });

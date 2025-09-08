@@ -10,10 +10,9 @@ namespace Microservices.Saga.Orchestration.Shared.StateMachines.Order
     public class OrderState : SagaStateMachineInstance
     {
         public Guid CorrelationId { get; set; }
-
         public string CurrentState { get; set; }
-        public int OrderId { get; set; }
-        public int UserId { get; set; }
+        public Guid OrderId { get; set; }
+        public Guid UserId { get; set; }
         public decimal TotalPrice { get; set; }
         public DateTime CreatedDate { get; set; }
     }

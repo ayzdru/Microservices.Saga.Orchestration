@@ -5,6 +5,6 @@ namespace Microservices.Saga.Orchestration.Shared.Interfaces
 {
     public interface IOrderService
     {
-        Task<Order> SubmitOrder(List<OrderItem> orderItems);
+        Task<OrderState> SubmitOrder(List<OrderItem> orderItems);
     }
 }

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Microservices.Saga.Orchestration.Shared.Entities
 {
-    public class Order
+    public class OrderState
     {
         public Guid Id { get; set; }
 
