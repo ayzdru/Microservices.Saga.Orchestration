@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Ocelot.DependencyInjection;
 using Ocelot.Middleware;
 using Ocelot.Provider.Consul;
@@ -10,6 +11,20 @@ namespace Ocelot.ApiGateway.Web
         public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+            var jwtSettings = builder.Configuration.GetSection("JwtBearer");
+            builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(options =>
+                {
+                    options.Authority = jwtSettings["Authority"];
+                    options.Audience = jwtSettings["Audience"];
+                    options.RequireHttpsMetadata = bool.Parse(jwtSettings["RequireHttpsMetadata"] ?? "true");
+                    options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
+                    {
+                        ValidateAudience = true
+                    };
+                });
+
+            builder.Services.AddAuthorizationBuilder();
             builder.Configuration
      .SetBasePath(builder.Environment.ContentRootPath)
      .AddOcelot();
@@ -19,7 +34,6 @@ namespace Ocelot.ApiGateway.Web
             builder.Services.AddOcelot(builder.Configuration)
                 .AddConsul();
 
-            builder.Services.AddAuthorization();
             if (builder.Environment.IsDevelopment())
             {
                 builder.Logging.AddConsole();
@@ -27,11 +41,14 @@ namespace Ocelot.ApiGateway.Web
             var app = builder.Build();
 
             app.UseHttpsRedirection();
+            app.UseAuthentication();
             app.UseAuthorization();
 
-            // Ocelot middleware'i ekle
-            await app.UseOcelot();
+          
             app.MapDefaultEndpoints();
+            app.UseHealthChecks("/health");
+            //En son satýra Ocelot middleware'i ekle
+            await app.UseOcelot();
             await app.RunAsync();
         }
     }

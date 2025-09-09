@@ -205,14 +205,7 @@ public static class StartupHelpers
         var dataProtectionConnectionString =
             configuration.GetConnectionString(ConfigurationConsts.DataProtectionDbConnectionStringKey);
 
-        //.NET ASPIRE
-        bool isDevelopment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development";
-        if(isDevelopment == true)
-        {
-            Console.WriteLine("*************************************** .NET ASPIRE ***************************************");
-            var databaseConnectionString = configuration.GetConnectionString("Identity");
-            identityConnectionString = configurationConnectionString = persistedGrantsConnectionString = dataProtectionConnectionString = databaseConnectionString;
-        }
+       
 
         switch (databaseProvider.ProviderType)
         {
@@ -463,14 +456,7 @@ public static class StartupHelpers
             configuration.GetConnectionString(ConfigurationConsts.IdentityDbConnectionStringKey);
         var dataProtectionDbConnectionString =
             configuration.GetConnectionString(ConfigurationConsts.DataProtectionDbConnectionStringKey);
-        //.NET ASPIRE
-        bool isDevelopment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development";
-        if (isDevelopment == true)
-        {
-            Console.WriteLine("*************************************** .NET ASPIRE ***************************************");
-            var databaseConnectionString = configuration.GetConnectionString("Identity");
-            configurationDbConnectionString = persistedGrantsDbConnectionString = identityDbConnectionString = dataProtectionDbConnectionString = databaseConnectionString;
-        }
+        
         var healthChecksBuilder = services.AddHealthChecks()
             .AddDbContextCheck<TConfigurationDbContext>("ConfigurationDbContext")
             .AddDbContextCheck<TPersistedGrantDbContext>("PersistedGrantsDbContext")

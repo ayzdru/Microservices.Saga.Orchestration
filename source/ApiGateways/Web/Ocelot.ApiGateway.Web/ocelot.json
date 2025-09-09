@@ -17,7 +17,7 @@
       },
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "Bearer",
-        "AllowedScopes": [ "product-api" ]
+        "AllowedScopes": [ "product" ]
       }
     },
     {
@@ -37,7 +37,7 @@
       },
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "Bearer",
-        "AllowedScopes": [ "order-api" ]
+        "AllowedScopes": [ "order" ]
       }
     },
     {
@@ -57,7 +57,7 @@
       },
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "Bearer",
-        "AllowedScopes": [ "payment-api" ]
+        "AllowedScopes": [ "payment" ]
       }
     }
   ],

@@ -131,16 +131,7 @@ public static class AdminUiServiceCollectionExtensions
         services.AddSingleton(options.Admin);
         services.AddSingleton(options.IdentityServerData);
         services.AddSingleton(options.IdentityData);
-        //.NET ASPIRE
-        bool isDevelopment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development";
-        if (isDevelopment == true)
-        {
-            Console.WriteLine("*************************************** .NET ASPIRE ***************************************");
-            var serviceProvider = services.BuildServiceProvider();
-            var configuration = serviceProvider.GetRequiredService<IConfiguration>();
-            var databaseConnectionString = configuration.GetConnectionString("Identity");
-            options.ConnectionStrings.SetConnections(databaseConnectionString);
-        }
+        
         // Add DbContexts for Asp.Net Core Identity, Logging and IdentityServer - Configuration store and Operational store
         if (!options.Testing.IsStaging)
             services.RegisterDbContexts<TIdentityDbContext, TIdentityServerDbContext,

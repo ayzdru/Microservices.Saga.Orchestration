@@ -154,14 +154,7 @@ public static class StartupHelpers
             configuration.GetSection(nameof(DatabaseMigrationsConfiguration)).Get<DatabaseMigrationsConfiguration>() ??
             new DatabaseMigrationsConfiguration();
         var connectionStrings = configuration.GetSection("ConnectionStrings").Get<ConnectionStringsConfiguration>();
-        //.NET ASPIRE
-        bool isDevelopment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development";
-        if (isDevelopment == true)
-        {
-            Console.WriteLine("*************************************** .NET ASPIRE ***************************************");
-            var databaseConnectionString = configuration.GetConnectionString("Identity");
-            connectionStrings.SetConnections(databaseConnectionString);
-        }
+       
         switch (databaseProvider.ProviderType)
         {
             case DatabaseProviderType.SqlServer:
@@ -311,15 +304,7 @@ public static class StartupHelpers
             configuration.GetConnectionString(ConfigurationConsts.AdminAuditLogDbConnectionStringKey);
         var dataProtectionDbConnectionString =
             configuration.GetConnectionString(ConfigurationConsts.DataProtectionDbConnectionStringKey);
-        //.NET ASPIRE
-        bool isDevelopment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development";
-        if (isDevelopment == true)
-        {
-            Console.WriteLine("*************************************** .NET ASPIRE ***************************************");
-            var databaseConnectionString = configuration.GetConnectionString("Identity");
-            configurationDbConnectionString = persistedGrantsDbConnectionString = identityDbConnectionString = logDbConnectionString = auditLogDbConnectionString = dataProtectionDbConnectionString = databaseConnectionString;
-        }
-
+       
         var identityServerUri = adminApiConfiguration.IdentityServerBaseUrl;
         var healthChecksBuilder = services.AddHealthChecks()
             .AddDbContextCheck<TConfigurationDbContext>("ConfigurationDbContext")

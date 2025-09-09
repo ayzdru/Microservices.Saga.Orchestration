@@ -22,8 +22,6 @@ var consul = builder.AddContainer("consul", "consul")
     .WithLifetime(ContainerLifetime.Persistent)
     .WithHttpEndpoint(8500, targetPort: 8500);
 
-
-
 var identityMigrationService = builder.AddProject<Projects.Identity>("identitymigration", "EFMigration")
     .WithReference(identityDB)
     .WaitFor(identityDB);
@@ -56,7 +54,7 @@ identityServerAdminWeb.WithHttpHealthCheck("/health")
 
 
 
-var ocelotApiGateway = builder.AddProject<Projects.Product_API>("ocelotapigateway");
+var ocelotApiGateway = builder.AddProject<Projects.Ocelot_ApiGateway_Web>("ocelotapigateway");
 ocelotApiGateway.WithHttpHealthCheck("/health")
           .WaitFor(consul)
           .WithReference(identityServer)
