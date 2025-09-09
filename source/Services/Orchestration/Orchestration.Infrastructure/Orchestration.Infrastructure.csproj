@@ -6,6 +6,7 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 	<ItemGroup>
+		<PackageReference Include="MassTransit.EntityFrameworkCore" Version="8.5.2" />
 		<PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="9.0.8" />
 		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.4" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.8">
@@ -15,11 +16,11 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<ProjectReference Include="..\..\..\Shared\Microservices.Saga.Orchestration.Shared\Microservices.Saga.Orchestration.Shared.csproj" />
 		<ProjectReference Include="..\Orchestration.Application\Orchestration.Application.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Folder Include="Data\Configurations\" />
 	  <Folder Include="Data\Migrations\" />
 	</ItemGroup>
 </Project>

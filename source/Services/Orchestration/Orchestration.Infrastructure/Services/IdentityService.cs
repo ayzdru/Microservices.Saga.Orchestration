@@ -11,11 +11,10 @@ namespace Orchestration.Infrastructure.Services;
 
 public class IdentityService : IIdentityService
 {
-    private readonly IAuthorizationService _authorizationService;
 
-    public IdentityService(IAuthorizationService authorizationService)
+    public IdentityService()
     {        
-        _authorizationService = authorizationService;
+        
     }
 
     public async Task<string?> GetUserNameAsync(Guid userId)

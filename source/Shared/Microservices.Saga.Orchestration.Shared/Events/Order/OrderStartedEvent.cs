@@ -1,4 +1,4 @@
-﻿using Microservices.Saga.Orchestration.Shared.Models.Order;
+﻿using Orchestration.Core.Models.Order;
 using System;
 using System.Collections.Generic;
 using System.Linq;

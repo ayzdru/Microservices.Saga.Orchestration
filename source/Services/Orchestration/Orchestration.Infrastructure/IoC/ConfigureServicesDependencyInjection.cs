@@ -1,4 +1,15 @@
-﻿using Orchestration.Application;
+﻿using FluentValidation;
+using MediatR;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Orchestration.Application;
 using Orchestration.Application.Behaviours;
 using Orchestration.Application.Interfaces;
 using Orchestration.Application.IoC;
@@ -8,16 +19,6 @@ using Orchestration.Infrastructure.Data;
 using Orchestration.Infrastructure.Data.Interceptors;
 using Orchestration.Infrastructure.Interceptors;
 using Orchestration.Infrastructure.Services;
-using FluentValidation;
-using MediatR;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI.Services;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -29,24 +30,22 @@ namespace Orchestration.Infrastructure.IoC
 {
     public static class ConfigureServicesDependencyInjection
     {
-        public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration, IWebHostEnvironment webHostEnvironment)
+        public static HostApplicationBuilder AddInfrastructure(this HostApplicationBuilder builder)
         {
-            services.AddScoped<ISaveChangesInterceptor, EntitySaveChangesInterceptor>();
-            services.AddScoped<ISaveChangesInterceptor, DispatchNotificationsInterceptor>();
+            builder.Services.AddScoped<ISaveChangesInterceptor, EntitySaveChangesInterceptor>();
+            builder.Services.AddScoped<ISaveChangesInterceptor, DispatchNotificationsInterceptor>();
 
-            services.AddTransient<IEmailSender, EmailService>();
-            services.AddTransient<IIdentityService, IdentityService>();
-            services.AddDbContext<OrchestrationDbContext>((sp, options) =>
+            builder.Services.AddTransient<IEmailSender, EmailService>();
+            builder.Services.AddTransient<IIdentityService, IdentityService>();
+            builder.Services.AddDbContext<OrchestrationDbContext>((sp, options) =>
             {
                 options.AddInterceptors(sp.GetServices<ISaveChangesInterceptor>());
-                options.UseNpgsql(
-                    configuration.GetConnectionString("Orchestration"));
+                options.UseNpgsql(builder.Configuration.GetConnectionString("OrchestrationDbConnection"));
             });
-
-            services.AddScoped<IApplicationDbContext>(provider => provider.GetService<OrchestrationDbContext>());
-            services.AddScoped<OrchestrationDbContextInitialiser>();
-            services.AddApplication();
-            return services;
+            builder.Services.AddScoped<IApplicationDbContext, OrchestrationDbContext>();
+            builder.Services.AddScoped<OrchestrationDbContextInitializer>();
+            builder.Services.AddApplication();
+            return builder;
         }
     }
 }

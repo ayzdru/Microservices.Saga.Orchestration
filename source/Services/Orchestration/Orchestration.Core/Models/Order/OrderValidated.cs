@@ -1,4 +1,4 @@
-namespace Sample.Components.Consumers;
+namespace Orchestration.Core.Models.Order;
 
 public record OrderValidated
 {

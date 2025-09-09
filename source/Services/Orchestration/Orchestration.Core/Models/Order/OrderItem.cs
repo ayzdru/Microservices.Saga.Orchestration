@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Microservices.Saga.Orchestration.Shared.Models.Order
+namespace Orchestration.Core.Models.Order
 {
     public class OrderItem
     {

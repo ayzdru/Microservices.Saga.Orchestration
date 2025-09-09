@@ -44,7 +44,7 @@ namespace Payment.Infrastructure.IoC
             });
 
             services.AddScoped<IApplicationDbContext>(provider => provider.GetService<OrchestrationDbContext>());
-            services.AddScoped<OrchestrationDbContextInitialiser>();
+            services.AddScoped<OrchestrationDbContextInitializer>();
             services.AddApplication();
             return services;
         }

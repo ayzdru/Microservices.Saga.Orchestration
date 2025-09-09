@@ -14,7 +14,7 @@ namespace Product.API.Services
             try
             {
                 using var scope = serviceProvider.CreateScope();
-                var initialiser = scope.ServiceProvider.GetRequiredService<ProductDbContextInitialiser>();
+                var initialiser = scope.ServiceProvider.GetRequiredService<ProductDbContextInitializer>();
                 await initialiser.InitialiseAsync(cancellationToken);
                 await initialiser.SeedAsync(cancellationToken);
             }

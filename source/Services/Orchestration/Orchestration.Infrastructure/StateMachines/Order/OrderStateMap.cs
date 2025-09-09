@@ -2,11 +2,11 @@ using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace Microservices.Saga.Orchestration.Shared.StateMachines.Order
+namespace Orchestration.Infrastructure.StateMachines.Order
 {
-    public class OrderStateMap : SagaClassMap<OrderState>
+    public class OrderStateMap : SagaClassMap<OrderStateMachineInstance>
     {
-        protected override void Configure(EntityTypeBuilder<OrderState> entity, ModelBuilder model)
+        protected override void Configure(EntityTypeBuilder<OrderStateMachineInstance> entity, ModelBuilder model)
         {
             entity.Property(x => x.CurrentState);
             entity.Property(x => x.CreatedDate);

@@ -1,11 +1,12 @@
 using MassTransit;
 using Microservices.Saga.Orchestration.Shared.Events.Order;
-using Microservices.Saga.Orchestration.Shared.Models.Payment;
-using Microservices.Saga.Orchestration.Shared.Models.Product;
+using Microservices.Saga.Orchestration.Shared.Events.Payment;
+using Microservices.Saga.Orchestration.Shared.Events.Product;
+using Orchestration.Core.Models.Product;
 
-namespace Microservices.Saga.Orchestration.Shared.StateMachines.Order
+namespace Orchestration.Infrastructure.StateMachines.Order
 {
-    public class OrderStateMachine : MassTransitStateMachine<OrderState>
+    public class OrderStateMachine : MassTransitStateMachine<OrderStateMachineInstance>
     {
         public Event<OrderStartedEvent> OrderStartedEvent { get; set; }
         public Event<ProductStockReservationSuccessEvent> ProductStockReservationSuccessEvent { get; set; }

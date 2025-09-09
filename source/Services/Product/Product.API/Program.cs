@@ -33,7 +33,7 @@ namespace Product.API
                     options.UseNpgsql(builder.Configuration.GetConnectionString("ProductDbConnection"));
                 });
                 builder.Services.AddScoped<IApplicationDbContext>(provider => provider.GetService<ProductDbContext>());
-                builder.Services.AddScoped<ProductDbContextInitialiser>();
+                builder.Services.AddScoped<ProductDbContextInitializer>();
                 builder.Services.AddHostedService<MigrationService>();
 
                 builder.Services.AddOpenTelemetry()

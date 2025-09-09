@@ -1,15 +1,16 @@
 ﻿using MassTransit;
 using Microservices.Saga.Orchestration.Shared.Interfaces;
-using Sample.Components.Consumers;
+using Orchestration.Core.Interfaces;
+using Orchestration.Core.Models.Order;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Microservices.Saga.Orchestration.Shared.Services
+namespace Orchestration.Infrastructure.Services
 {
-    internal class OrderValidationService: IOrderValidationService
+    public class OrderValidationService: IOrderValidationService
     {
         readonly IPublishEndpoint _publishEndpoint;
 

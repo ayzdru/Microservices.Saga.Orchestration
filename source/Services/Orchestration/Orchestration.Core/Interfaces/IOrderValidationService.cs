@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Microservices.Saga.Orchestration.Shared.Interfaces
+namespace Orchestration.Core.Interfaces
 {
     public interface IOrderValidationService
     {

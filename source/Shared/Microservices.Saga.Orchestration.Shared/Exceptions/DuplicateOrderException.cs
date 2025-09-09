@@ -1,4 +1,4 @@
-namespace Microservices.Saga.Orchestration.Shared
+namespace Microservices.Saga.Orchestration.Shared.Exceptions
 {
     [Serializable]
     public class DuplicateOrderException :

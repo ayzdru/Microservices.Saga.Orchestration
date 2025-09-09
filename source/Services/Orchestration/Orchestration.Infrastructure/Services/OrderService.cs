@@ -1,22 +1,22 @@
 
 
 using MassTransit;
-using Microservices.Saga.Orchestration.Shared.Entities;
 using Microservices.Saga.Orchestration.Shared.Events.Order;
-using Microservices.Saga.Orchestration.Shared.Infrastructure.Data;
+using Microservices.Saga.Orchestration.Shared.Exceptions;
 using Microservices.Saga.Orchestration.Shared.Interfaces;
-using Microservices.Saga.Orchestration.Shared.Models.Order;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
-namespace Microservices.Saga.Orchestration.Shared
+using Orchestration.Core.Entities;
+using Orchestration.Core.Models.Order;
+using Orchestration.Infrastructure.Data;
+namespace Orchestration.Infrastructure.Services
 {
-    public class OrderService :
-    IOrderService
+    public class OrderService : IOrderService
     {
-        readonly OrderStateDbContext _dbContext;
+        readonly OrchestrationDbContext _dbContext;
         readonly IPublishEndpoint _publishEndpoint;
 
-        public OrderService(OrderStateDbContext dbContext, IPublishEndpoint publishEndpoint)
+        public OrderService(OrchestrationDbContext dbContext, IPublishEndpoint publishEndpoint)
         {
             _dbContext = dbContext;
             _publishEndpoint = publishEndpoint;
@@ -24,12 +24,7 @@ namespace Microservices.Saga.Orchestration.Shared
 
         public async Task<OrderState> SubmitOrder(List<OrderItem> orderItems)
         {
-            var orderState = new OrderState
-            {
-                OrderId = NewId.NextGuid(),
-                OrderDate = DateTime.UtcNow,
-                TotalPrice = orderItems.Sum(q => q.Count * q.Price)
-            };
+            var orderState = new OrderState(NewId.NextGuid(), DateTime.UtcNow, orderItems.Sum(q => q.Count * q.Price));
 
             await _dbContext.Set<OrderState>().AddAsync(orderState);
 

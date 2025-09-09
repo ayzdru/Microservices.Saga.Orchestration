@@ -17,6 +17,7 @@ var identityDB = postgres.AddDatabase(identityDatabaseName).WithCreationScript(c
 var orderDB = postgres.AddDatabase("Order");
 var paymentDB = postgres.AddDatabase("Payment");
 var productDB = postgres.AddDatabase("Product");
+var orchestrationDB = postgres.AddDatabase("Orchestration");
 
 var consul = builder.AddContainer("consul", "consul")
     .WithImageTag("1.15.4")
@@ -24,6 +25,18 @@ var consul = builder.AddContainer("consul", "consul")
     .WithVolume("consul_data", "/consul/data")
     .WithLifetime(ContainerLifetime.Persistent)
     .WithEndpoint(port: 8500, targetPort: 8500, scheme: "tcp", isProxied: false);
+
+var rabbitmqUsername = builder.AddParameter("admin", secret: true);
+var rabbitmqPassword = builder.AddParameter("Password1", secret: true);
+var rabbitmq = builder.AddRabbitMQ("rabbitmq", rabbitmqUsername, rabbitmqPassword)
+    .WithContainerName("rabbitmq")
+    .WithImageTag("4.1.4-management")
+    .WithDataVolume("rabbitmq_data")
+    .WithEndpoint(name: "rabbitmq",port: 5672, targetPort: 5672, isProxied: false)
+    .WithEndpoint(name: "rabbitmq-management", port: 15672, targetPort: 15672, isProxied: false)
+    //.WithManagementPlugin(port: 15672)
+    .WithLifetime(ContainerLifetime.Persistent);
+    
 
 var identityMigrationService = builder.AddProject<Projects.Identity>("identitymigration", "EFMigration")
     .WithReference(identityDB)

@@ -45,7 +45,7 @@ namespace Product.Infrastructure.IoC
                 options.UseNpgsql(builder.Configuration.GetConnectionString("ProductDbConnection"));
             });
             builder.Services.AddScoped<IApplicationDbContext, ProductDbContext>();
-            builder.Services.AddScoped<ProductDbContextInitialiser>();
+            builder.Services.AddScoped<ProductDbContextInitializer>();
             builder.Services.AddApplication();
             return builder;
         }

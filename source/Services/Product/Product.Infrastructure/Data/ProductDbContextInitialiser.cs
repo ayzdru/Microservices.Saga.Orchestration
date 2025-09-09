@@ -10,12 +10,12 @@ using System.Threading.Tasks;
 
 namespace Product.Infrastructure.Data;
 
-public class ProductDbContextInitialiser
+public class ProductDbContextInitializer
 {
-    private readonly ILogger<ProductDbContextInitialiser> _logger;
+    private readonly ILogger<ProductDbContextInitializer> _logger;
     private readonly ProductDbContext _context;
 
-    public ProductDbContextInitialiser(ILogger<ProductDbContextInitialiser> logger, ProductDbContext context)
+    public ProductDbContextInitializer(ILogger<ProductDbContextInitializer> logger, ProductDbContext context)
     {
         _logger = logger;
         _context = context;

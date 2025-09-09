@@ -1,5 +1,6 @@
-using Microservices.Saga.Orchestration.Shared.Entities;
-using Microservices.Saga.Orchestration.Shared.Models.Order;
+
+using Orchestration.Core.Entities;
+using Orchestration.Core.Models.Order;
 
 namespace Microservices.Saga.Orchestration.Shared.Interfaces
 {

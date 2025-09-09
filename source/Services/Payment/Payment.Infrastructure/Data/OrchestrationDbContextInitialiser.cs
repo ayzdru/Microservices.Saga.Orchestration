@@ -9,12 +9,12 @@ using System.Threading.Tasks;
 
 namespace Payment.Infrastructure.Data;
 
-public class OrchestrationDbContextInitialiser
+public class OrchestrationDbContextInitializer
 {
-    private readonly ILogger<OrchestrationDbContextInitialiser> _logger;
+    private readonly ILogger<OrchestrationDbContextInitializer> _logger;
     private readonly OrchestrationDbContext _context;
 
-    public OrchestrationDbContextInitialiser(ILogger<OrchestrationDbContextInitialiser> logger, OrchestrationDbContext context)
+    public OrchestrationDbContextInitializer(ILogger<OrchestrationDbContextInitializer> logger, OrchestrationDbContext context)
     {
         _logger = logger;
         _context = context;

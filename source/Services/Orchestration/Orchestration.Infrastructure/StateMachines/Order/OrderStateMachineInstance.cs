@@ -5,9 +5,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Microservices.Saga.Orchestration.Shared.StateMachines.Order
+namespace Orchestration.Infrastructure.StateMachines.Order
 {
-    public class OrderState : SagaStateMachineInstance
+    public class OrderStateMachineInstance : SagaStateMachineInstance
     {
         public Guid CorrelationId { get; set; }
         public string CurrentState { get; set; }
