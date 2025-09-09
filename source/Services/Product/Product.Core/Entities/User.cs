@@ -7,5 +7,9 @@ namespace Product.Core.Entities
 {
     public class User : BaseEntity
     {
+        public User(Guid id)
+        {
+          base.Id = id;
+        }
     }
 }

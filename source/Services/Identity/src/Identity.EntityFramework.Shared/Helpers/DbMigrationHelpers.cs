@@ -157,6 +157,7 @@ public static class DbMigrationHelpers
         {
             var identityUser = new TUser
             {
+                Id = user.UserId,
                 UserName = user.Username,
                 Email = user.Email,
                 EmailConfirmed = true

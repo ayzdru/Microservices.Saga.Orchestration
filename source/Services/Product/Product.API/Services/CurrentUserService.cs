@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Product.Core.Interfaces;
 using System;
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 
 
@@ -19,7 +20,12 @@ public class CurrentUserService : ICurrentUserService
         get
         {
 
-            string userId = _httpContextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.NameIdentifier);
+            var token = _httpContextAccessor.HttpContext?.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+
+            var handler = new JwtSecurityTokenHandler();
+            var jwtToken = handler.ReadJwtToken(token);
+
+            var userId = jwtToken.Claims.First(claim => claim.Type == JwtRegisteredClaimNames.Sub).Value;
             if (!string.IsNullOrEmpty(userId))
             {
                 if (Guid.TryParse(userId, out Guid _userId))

@@ -70,6 +70,14 @@ public class ProductDbContextInitialiser
                 await _context.SaveChangesAsync(cancellationToken);
                 await transaction.CommitAsync(cancellationToken);
             }
+            if (!_context.Users.Any())
+            {
+                var userId = Guid.Parse("d78c3a48-d29b-42c1-b4ad-6fe527fb00d2");
+                await using var transaction = await _context.Database.BeginTransactionAsync(cancellationToken);
+                _context.Users.Add(new User(userId));
+                await _context.SaveChangesAsync(cancellationToken);
+                await transaction.CommitAsync(cancellationToken);
+            }
         });
     }
 }

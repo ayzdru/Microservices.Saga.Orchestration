@@ -8,18 +8,18 @@ internal sealed class ClientProduct(HttpClient httpClient) : IProduct
         await httpClient.GetFromJsonAsync<Product[]>("api/products") ??
             throw new IOException("No products!");
 
-    public async Task<Product?> CreateProductAsync(Product product)
+    public async Task<bool> CreateProductAsync(Product product)
     {
         var response = await httpClient.PostAsJsonAsync("api/products", product);
         response.EnsureSuccessStatusCode();
-        return await response.Content.ReadFromJsonAsync<Product>();
+        return response.IsSuccessStatusCode;
     }
 
-    public async Task<Product?> UpdateProductAsync(Product product)
+    public async Task<bool> UpdateProductAsync(Product product)
     {
         var response = await httpClient.PutAsJsonAsync($"api/products/{product.Id}", product);
         response.EnsureSuccessStatusCode();
-        return await response.Content.ReadFromJsonAsync<Product>();
+        return response.IsSuccessStatusCode;
     }
 
     public async Task<bool> DeleteProductAsync(Guid productId)

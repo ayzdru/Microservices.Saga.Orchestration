@@ -61,7 +61,10 @@ builder.Services.AddScoped<TokenHandler>();
 builder.Services.AddHttpClient("ApiGateway",
       client => client.BaseAddress = new Uri(builder.Configuration["ApiGatewayUri"] ??
           throw new Exception("Missing base address!")))
-      .AddHttpMessageHandler<TokenHandler>();
+      .AddHttpMessageHandler<TokenHandler>().ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
+      {
+          ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => true
+      });
 
 var app = builder.Build();
 //Product API group

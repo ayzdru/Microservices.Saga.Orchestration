@@ -5,14 +5,13 @@ namespace BlazorWebAppOidc;
 
 internal sealed class ServerProduct(IHttpClientFactory clientFactory) : IProduct
 {
-    public async Task<Product> CreateProductAsync(Product product)
+    public async Task<bool> CreateProductAsync(Product product)
     {
         var client = clientFactory.CreateClient("ApiGateway");
         var response = await client.PostAsJsonAsync("/products", product);
         response.EnsureSuccessStatusCode();
 
-        return await response.Content.ReadFromJsonAsync<Product>()
-            ?? throw new IOException("Failed to create product!");
+        return response.IsSuccessStatusCode;
     }
 
     public async Task<bool> DeleteProductAsync(Guid productId)
@@ -33,13 +32,12 @@ internal sealed class ServerProduct(IHttpClientFactory clientFactory) : IProduct
             throw new IOException("No products!");
     }
 
-    public async Task<Product> UpdateProductAsync(Product product)
+    public async Task<bool> UpdateProductAsync(Product product)
     {
         var client = clientFactory.CreateClient("ApiGateway");
         var response = await client.PutAsJsonAsync($"/products/{product.Id}", product);
         response.EnsureSuccessStatusCode();
 
-        return await response.Content.ReadFromJsonAsync<Product>()
-            ?? throw new IOException("Failed to update product!");
+        return response.IsSuccessStatusCode;
     }
 }

@@ -18,7 +18,7 @@ else
         <tr>
             <th>Name</th>
             <th>Price</th>
-            <th>Created At</th>
+            <th>Stock</th>
             <th>Actions</th>
         </tr>
     </thead>
@@ -51,6 +51,7 @@ else
                 <div class="modal-body">
                     <input class="form-control mb-2" placeholder="Name" @bind="modalProduct.Name" />
                     <input class="form-control mb-2" type="number" placeholder="Price" @bind="modalProduct.Price" />
+                    <input class="form-control mb-2" type="number" placeholder="Stock" @bind="modalProduct.Stock" />
                 </div>
                 <div class="modal-footer">
                     <button class="btn btn-secondary" @onclick="CloseModal">Cancel</button>
