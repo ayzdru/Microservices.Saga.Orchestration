@@ -1,9 +1,7 @@
 ﻿using Identity.Shared.ModuleInitializer;
-using Steeltoe.Discovery.Consul;
 
 var builder = WebApplication.CreateBuilder();
 builder.AddServiceDefaults();
-builder.Services.AddConsulDiscoveryClient();
 #region Config
 
 builder.Configuration.AddJsonFile("serilog.json", true, true);

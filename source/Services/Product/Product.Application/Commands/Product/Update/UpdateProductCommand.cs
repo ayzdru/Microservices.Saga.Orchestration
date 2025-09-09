@@ -10,7 +10,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace CleanArchitecture.Application.Commands
+namespace Product.Application.Commands
 {    
     public record UpdateProductCommand : IRequest<bool>
     {

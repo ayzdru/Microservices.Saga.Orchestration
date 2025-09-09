@@ -1,0 +1,11 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFrameworks>net9.0</TargetFrameworks>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <Nullable>disable</Nullable>   
+  </PropertyGroup> 
+  <ItemGroup>
+    <PackageReference Include="Consul" Version="1.7.14.9" />
+    <PackageReference Include="Ocelot" Version="24.0.1" />   
+  </ItemGroup>
+</Project>

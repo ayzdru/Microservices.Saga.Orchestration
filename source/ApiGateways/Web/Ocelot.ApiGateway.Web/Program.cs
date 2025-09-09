@@ -1,16 +1,23 @@
+using Consul;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Ocelot.DependencyInjection;
 using Ocelot.Middleware;
+using System.Net;
+using System.Net.Http;
+using System.Net.Security;
+using System.Reflection;
+using System.Runtime.ConstrainedExecution;
 using Ocelot.Provider.Consul;
-using Steeltoe.Discovery.Consul;
 
 namespace Ocelot.ApiGateway.Web
 {
     public class Program
     {
         public static async Task Main(string[] args)
-        {
+        {         
             var builder = WebApplication.CreateBuilder(args);
+           
+
             var jwtSettings = builder.Configuration.GetSection("JwtBearer");
             builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
@@ -28,18 +35,15 @@ namespace Ocelot.ApiGateway.Web
             builder.Configuration
      .SetBasePath(builder.Environment.ContentRootPath)
      .AddOcelot();
-            builder.AddServiceDefaults(); 
-            builder.Services.AddConsulDiscoveryClient();
+            builder.AddServiceDefaults();
             // Ocelot ve Consul'u ekle
-            builder.Services.AddOcelot(builder.Configuration)
-                .AddConsul();
+            builder.Services.AddOcelot(builder.Configuration).AddConsul();
 
             if (builder.Environment.IsDevelopment())
             {
                 builder.Logging.AddConsole();
             }
             var app = builder.Build();
-
             app.UseHttpsRedirection();
             app.UseAuthentication();
             app.UseAuthorization();

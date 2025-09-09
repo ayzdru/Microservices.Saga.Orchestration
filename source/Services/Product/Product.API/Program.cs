@@ -1,7 +1,4 @@
 
-using CleanArchitecture.Application.Commands;
-using CleanArchitecture.Application.Queries;
-using Consul;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Hosting;
@@ -12,6 +9,7 @@ using Product.API.Services;
 using Product.API.Transformers;
 using Product.Application.Commands;
 using Product.Application.Interfaces;
+using Product.Application.Queries;
 using Product.Infrastructure.Data;
 using Product.Infrastructure.IoC;
 using Product.Web.IoC;
@@ -48,7 +46,6 @@ namespace Product.API
             else
             {
                 var builder = WebApplication.CreateBuilder(args);
-
                 var jwtSettings = builder.Configuration.GetSection("JwtBearer");
                 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                     .AddJwtBearer(options =>

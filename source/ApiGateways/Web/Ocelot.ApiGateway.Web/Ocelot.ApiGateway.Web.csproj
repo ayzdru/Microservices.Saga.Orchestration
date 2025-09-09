@@ -8,12 +8,11 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.8" />
-    <PackageReference Include="Ocelot" Version="24.0.1" />
-    <PackageReference Include="Ocelot.Provider.Consul" Version="24.0.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\Shared\Microservices.Saga.Orchestration.ServiceDefaults\Microservices.Saga.Orchestration.ServiceDefaults.csproj" />
+    <ProjectReference Include="..\..\Ocelot.Provider.Consul\Ocelot.Provider.Consul.csproj" />
   </ItemGroup>
 
 </Project>

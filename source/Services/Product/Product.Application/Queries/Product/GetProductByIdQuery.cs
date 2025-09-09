@@ -10,7 +10,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace CleanArchitecture.Application.Queries
+namespace Product.Application.Queries
 {   
     public record GetProductByIdQueryResponse(Guid Id, string Name, decimal Price, int Stock);
     public record GetProductByIdQuery :  IRequest<GetProductByIdQueryResponse>

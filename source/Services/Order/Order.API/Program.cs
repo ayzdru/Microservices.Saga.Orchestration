@@ -1,6 +1,5 @@
 
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Steeltoe.Discovery.Consul;
 namespace Order.API
 {
     public class Program
@@ -27,7 +26,6 @@ namespace Order.API
 
             builder.Services.AddAuthorizationBuilder();
             builder.AddServiceDefaults();
-            builder.Services.AddConsulDiscoveryClient();
             // Add services to the container.
             builder.Services.AddAuthorization();
 

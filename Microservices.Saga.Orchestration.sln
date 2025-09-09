@@ -79,6 +79,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlazorWebAppOidc.Client", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlazorWebAppOidc", "source\Web\BlazorWebAppOidc\BlazorWebAppOidc.csproj", "{9D5E6423-E3C6-098D-72BB-869758186C05}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ocelot.Provider.Consul", "source\ApiGateways\Ocelot.Provider.Consul\Ocelot.Provider.Consul.csproj", "{70CCFC98-1E9F-81A2-28B5-0AD1A5D41700}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -189,6 +191,10 @@ Global
 		{9D5E6423-E3C6-098D-72BB-869758186C05}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9D5E6423-E3C6-098D-72BB-869758186C05}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9D5E6423-E3C6-098D-72BB-869758186C05}.Release|Any CPU.Build.0 = Release|Any CPU
+		{70CCFC98-1E9F-81A2-28B5-0AD1A5D41700}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{70CCFC98-1E9F-81A2-28B5-0AD1A5D41700}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{70CCFC98-1E9F-81A2-28B5-0AD1A5D41700}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{70CCFC98-1E9F-81A2-28B5-0AD1A5D41700}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -230,6 +236,7 @@ Global
 		{4111C281-D93A-4B00-98AA-CD8E22BC2AEC} = {3EF7ECE7-4864-4070-BAD0-64458BD2005A}
 		{08B30811-4C85-7073-16FA-9152F3329D90} = {E09DD6CA-8BA7-4E90-98A6-AC5940C30D91}
 		{9D5E6423-E3C6-098D-72BB-869758186C05} = {E09DD6CA-8BA7-4E90-98A6-AC5940C30D91}
+		{70CCFC98-1E9F-81A2-28B5-0AD1A5D41700} = {112D5237-C1E7-409A-8B69-44E54229F2BB}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {58D7D618-54DB-4C5C-A5D2-10FC55BE1315}

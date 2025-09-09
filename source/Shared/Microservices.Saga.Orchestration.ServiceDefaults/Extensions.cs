@@ -1,3 +1,5 @@
+﻿using Consul;
+using Microservices.Saga.Orchestration.ServiceDefaults;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Http;
@@ -9,6 +11,7 @@ using Microsoft.Extensions.ServiceDiscovery;
 using OpenTelemetry;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Trace;
+using HealthStatus = Microsoft.Extensions.Diagnostics.HealthChecks.HealthStatus;
 
 namespace Microsoft.Extensions.Hosting;
 
@@ -21,7 +24,15 @@ public static class Extensions
     private const string AlivenessEndpointPath = "/alive";
 
     public static TBuilder AddServiceDefaults<TBuilder>(this TBuilder builder) where TBuilder : IHostApplicationBuilder
-    {   
+    {
+        ConsulSettings consulSettings = new ConsulSettings();
+
+        // Load settings from appsettings.json
+        builder.Configuration.GetSection("Consul").Bind(consulSettings);
+
+        builder.Services.AddSingleton<ConsulSettings>(consulSettings);
+        builder.Services.AddConsulSettings(consulSettings);
+
         builder.ConfigureOpenTelemetry();
 
         builder.AddDefaultHealthChecks();
@@ -160,6 +171,43 @@ public static class Extensions
                 Predicate = r => r.Tags.Contains("live")
             });
         }
+        app.RegisterConsul();
+        return app;
+    }
+    public static IServiceCollection AddConsulSettings(this IServiceCollection services, ConsulSettings consulSettings)
+    {
+        services.AddSingleton<IConsulClient, ConsulClient>(c => new ConsulClient(config =>
+        {
+            config.Address = new Uri($"{consulSettings.Scheme}://{consulSettings.Host}:{consulSettings.Port}"); //add discovery address "http://127.0.0.1:8500"
+        }));
+
+        return services;
+    }
+
+
+    public static IApplicationBuilder RegisterConsul(this IApplicationBuilder app)
+    {
+        ConsulSettings consulSettings = app.ApplicationServices.GetRequiredService<ConsulSettings>();
+        IConsulClient consulClient = app.ApplicationServices.GetRequiredService<IConsulClient>();
+        ILogger logger = app.ApplicationServices.GetRequiredService<ILoggerFactory>().CreateLogger("ConsulServiceRegistryExtension");
+        IHostApplicationLifetime lifetime = app.ApplicationServices.GetRequiredService<IHostApplicationLifetime>();
+
+        AgentServiceRegistration registration = new AgentServiceRegistration()
+        {
+            ID = consulSettings.Discovery.ServiceName, //service name
+            Name = consulSettings.Discovery.ServiceName,
+            Address = consulSettings.Discovery.Hostname,
+            Port = consulSettings.Discovery.Port
+           
+        };
+
+        logger.LogInformation("Registering with Consul");
+        consulClient.Agent.ServiceDeregister(registration.ID).ConfigureAwait(true); //Deregister service before registering.
+        consulClient.Agent.ServiceRegister(registration).ConfigureAwait(true); //Deregister service before registering.
+
+        lifetime.ApplicationStopping.Register(() => {
+            logger.LogInformation("Deregistering with Consul");
+        });
 
         return app;
     }

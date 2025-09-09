@@ -1,12 +1,10 @@
 ﻿using Identity.Shared.ModuleInitializer;
-using Steeltoe.Discovery.Consul;
 
 const string seedArgs = "/seed";
 const string migrateOnlyArgs = "/migrateonly";
 
 var builder = WebApplication.CreateBuilder(args.Where(x => x != seedArgs).ToArray());
 builder.AddServiceDefaults();
-builder.Services.AddConsulDiscoveryClient();
 
 #region Config
 

@@ -1,11 +1,13 @@
 using Aspire.Hosting;
 
 var builder = DistributedApplication.CreateBuilder(args);
+
 var postgres = builder.AddPostgres("postgres")
     .WithImageTag("17")
+    .WithContainerName("postgres")
     .WithVolume("postgresql_data", "/var/lib/postgresql/data")
     .WithEndpoint(name: "postgresendpoint", scheme: "tcp", port: 5432, targetPort: 5432, isProxied: false)
-    .WithLifetime(ContainerLifetime.Persistent).WithPgAdmin(pgAdmin => pgAdmin.WithImageTag("9.8.0").WithHostPort(5050).WithVolume("pgadmin_data", "/var/lib/pgadmin").WithLifetime(ContainerLifetime.Persistent));
+    .WithLifetime(ContainerLifetime.Persistent).WithPgAdmin(pgAdmin => pgAdmin.WithContainerName("pgAdmin").WithImageTag("9.8.0").WithHostPort(5050).WithVolume("pgadmin_data", "/var/lib/pgadmin").WithLifetime(ContainerLifetime.Persistent));
 var identityDatabaseName = "Identity";
 var creationScript = $$"""    
     CREATE DATABASE '{{identityDatabaseName}}';
@@ -18,9 +20,10 @@ var productDB = postgres.AddDatabase("Product");
 
 var consul = builder.AddContainer("consul", "consul")
     .WithImageTag("1.15.4")
+    .WithContainerName("consul")
     .WithVolume("consul_data", "/consul/data")
     .WithLifetime(ContainerLifetime.Persistent)
-    .WithHttpEndpoint(8500, targetPort: 8500);
+    .WithEndpoint(port: 8500, targetPort: 8500, scheme: "tcp", isProxied: false);
 
 var identityMigrationService = builder.AddProject<Projects.Identity>("identitymigration", "EFMigration")
     .WithReference(identityDB)
@@ -54,11 +57,7 @@ identityServerAdminWeb.WithHttpHealthCheck("/health")
 
 
 
-var ocelotApiGateway = builder.AddProject<Projects.Ocelot_ApiGateway_Web>("ocelotapigateway");
-ocelotApiGateway.WithHttpHealthCheck("/health")
-          .WaitFor(consul)
-          .WithReference(identityServer)
-          .WaitFor(identityServer);
+
 
 var productMigrationService = builder.AddProject<Projects.Product_API>("productmigration", "EFMigration")
     .WithReference(productDB)
@@ -88,6 +87,18 @@ paymentApi.WithHttpHealthCheck("/health")
           .WaitFor(identityServer)
           .WithReference(paymentDB)
           .WaitFor(paymentDB);
+
+var ocelotApiGateway = builder.AddProject<Projects.Ocelot_ApiGateway_Web>("ocelotapigateway");
+ocelotApiGateway.WithHttpHealthCheck("/health")
+          .WaitFor(consul)
+          .WithReference(identityServer)
+          .WaitFor(identityServer)
+          .WithReference(productApi)
+          .WaitFor(productApi)
+          .WithReference(orderApi)
+          .WaitFor(orderApi)
+          .WithReference(paymentApi)
+          .WaitFor(paymentApi);
 
 var web = builder.AddProject<Projects.BlazorWebAppOidc>("web");
        web.WithHttpHealthCheck("/health")

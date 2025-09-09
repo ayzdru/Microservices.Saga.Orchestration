@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace CleanArchitecture.Application.Commands
+namespace Product.Application.Commands
 {
     public class UpdateProductCommandValidator : AbstractValidator<UpdateProductCommand>
     {
