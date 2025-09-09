@@ -1,7 +1,6 @@
 using BlazorWebAppOidc;
-using BlazorWebAppOidc.Client.Weather;
+using BlazorWebAppOidc.Client;
 using BlazorWebAppOidc.Components;
-using BlazorWebAppOidc.Weather;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Mvc;
@@ -53,19 +52,41 @@ builder.Services.AddRazorComponents()
     .AddInteractiveWebAssemblyComponents()
     .AddAuthenticationStateSerialization(options => options.SerializeAllClaims = true);
 
-builder.Services.AddScoped<IWeatherForecaster, ServerWeatherForecaster>();
+builder.Services.AddScoped<IProduct, ServerProduct>();
 
 builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddScoped<TokenHandler>();
 
-//builder.Services.AddHttpClient("ExternalApi",
-//      client => client.BaseAddress = new Uri(builder.Configuration["ExternalApiUri"] ?? 
-//          throw new Exception("Missing base address!")))
-//      .AddHttpMessageHandler<TokenHandler>();
+builder.Services.AddHttpClient("ApiGateway",
+      client => client.BaseAddress = new Uri(builder.Configuration["ApiGatewayUri"] ??
+          throw new Exception("Missing base address!")))
+      .AddHttpMessageHandler<TokenHandler>();
 
 var app = builder.Build();
+//Product API group
+var productsApi = app.MapGroup("/api/products").RequireAuthorization();
 
+productsApi.MapGet("/", async ([FromServices] IProduct product) =>
+{
+    return await product.GetProductsAsync();
+});
+
+productsApi.MapPost("/", async ([FromServices] IProduct product, [FromBody] Product newProduct) =>
+{
+    return await product.CreateProductAsync(newProduct);
+});
+
+productsApi.MapPut("/{id:guid}", async ([FromServices] IProduct product, Guid id, [FromBody] Product updatedProduct) =>
+{
+    updatedProduct.Id = id;
+    return await product.UpdateProductAsync(updatedProduct);
+});
+
+productsApi.MapDelete("/{id:guid}", async ([FromServices] IProduct product, Guid id) =>
+{
+    return await product.DeleteProductAsync(id);
+});
 if (app.Environment.IsDevelopment())
 {
     app.UseWebAssemblyDebugging();

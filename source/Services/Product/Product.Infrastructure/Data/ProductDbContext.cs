@@ -19,6 +19,7 @@ namespace Product.Infrastructure.Data
     public class ProductDbContext : DbContext, IApplicationDbContext
     {
         public DbSet<Product.Core.Entities.Product> Products { get; set; }
+        public DbSet<User> Users { get; set; }
         public ProductDbContext(DbContextOptions<ProductDbContext> options)
              : base(options)
         {

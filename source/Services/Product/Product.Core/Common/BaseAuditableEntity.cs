@@ -14,7 +14,7 @@ namespace Product.Core.Common
         public User? UpdatedByUser { get; protected set; }
         public Guid? UpdatedByUserId { get; protected set; }
         public DateTime? UpdatedDate { get; protected set; }
-        public byte[] RowVersion { get; protected set; } = Array.Empty<byte>();
+        public uint RowVersion { get; protected set; }
         public User? DeletedByUser { get; protected set; }
         public Guid? DeletedByUserId { get; protected set; }
         public DateTime? DeletedDate { get; protected set; }
@@ -44,17 +44,17 @@ namespace Product.Core.Common
         public void SetCreated(Guid? createdByUserId)
         {
             CreatedByUserId = createdByUserId;
-            CreatedDate = DateTime.Now;
+            CreatedDate = DateTime.UtcNow;
         }
         public void SetUpdated(Guid? updatedByUserId)
         {
             UpdatedByUserId = updatedByUserId;
-            UpdatedDate = DateTime.Now;
+            UpdatedDate = DateTime.UtcNow;
         }
         public void SetDeleted(Guid? deletedByUserId)
         {
             DeletedByUserId = deletedByUserId;
-            DeletedDate = DateTime.Now;
+            DeletedDate = DateTime.UtcNow;
             IsDeleted = true;
         }
         public void SetActive(bool isActive, Guid? updatedByUserId)

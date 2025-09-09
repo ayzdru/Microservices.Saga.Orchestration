@@ -1,13 +1,22 @@
 ﻿{
   "$schema": "https://json.schemastore.org/launchsettings.json",
-  "profiles": {   
+  "profiles": {
     "https": {
       "commandName": "Project",
       "dotnetRunMessages": true,
       "launchBrowser": false,
+      "launchUrl": "swagger",
       "applicationUrl": "https://localhost:7254",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
+      }
+    },
+    "EFMigration": {
+      "commandName": "Project",
+      "commandLineArgs": "/migrate",
+      "launchBrowser": false,
+      "environmentVariables": {
+        "DOTNET_ENVIRONMENT": "Development"
       }
     }
   }

@@ -9,15 +9,15 @@ namespace Product.Web.IoC
 {
     public static class ConfigureServicesDependencyInjection
     {
-        public static IServiceCollection AddWeb(this IServiceCollection services, IWebHostEnvironment env)
+        public static WebApplicationBuilder AddWeb(this WebApplicationBuilder builder)
         {
-            if (env.IsDevelopment())
+            if (builder.Environment.IsDevelopment())
             {
-                services.AddDatabaseDeveloperPageExceptionFilter();
+                builder.Services.AddDatabaseDeveloperPageExceptionFilter();
             }
-            services.AddHttpContextAccessor();
-            services.AddScoped<ICurrentUserService, CurrentUserService>();
-            return services;
+            builder.Services.AddHttpContextAccessor();
+            builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
+            return builder;
         }
     }
 }

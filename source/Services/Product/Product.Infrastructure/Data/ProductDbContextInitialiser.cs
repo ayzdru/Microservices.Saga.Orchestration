@@ -1,10 +1,11 @@
-﻿using Product.Core.Entities;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Product.Core.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Product.Infrastructure.Data;
@@ -20,11 +21,15 @@ public class ProductDbContextInitialiser
         _context = context;
     }
 
-    public async Task InitialiseAsync()
+    public async Task InitialiseAsync(CancellationToken cancellationToken)
     {
         try
         {
-            await _context.Database.MigrateAsync();
+            var strategy = _context.Database.CreateExecutionStrategy();
+            await strategy.ExecuteAsync(async () =>
+            {
+                await _context.Database.MigrateAsync(cancellationToken);
+            });
         }
         catch (Exception ex)
         {
@@ -33,11 +38,11 @@ public class ProductDbContextInitialiser
         }
     }
 
-    public async Task SeedAsync()
+    public async Task SeedAsync(CancellationToken cancellationToken)
     {
         try
         {
-            await TrySeedAsync();
+            await TrySeedAsync(cancellationToken);
         }
         catch (Exception ex)
         {
@@ -46,19 +51,25 @@ public class ProductDbContextInitialiser
         }
     }
 
-    public async Task TrySeedAsync()
+    public async Task TrySeedAsync(CancellationToken cancellationToken)
     {
-        if (!_context.Products.Any())
+        var strategy = _context.Database.CreateExecutionStrategy();
+        await strategy.ExecuteAsync(async () =>
         {
-            var products = new List<Product.Core.Entities.Product>
+            if (!_context.Products.Any())
+            {
+                await using var transaction = await _context.Database.BeginTransactionAsync(cancellationToken);
+                var products = new List<Product.Core.Entities.Product>
             {
                 new Product.Core.Entities.Product("Laptop", 1500.00m, 10),
                 new Product.Core.Entities.Product("Smartphone", 800.00m, 25),
                 new Product.Core.Entities.Product("Headphones", 120.00m, 50)
             };
 
-            _context.Products.AddRange(products);
-            await _context.SaveChangesAsync();
-        }
+                _context.Products.AddRange(products);
+                await _context.SaveChangesAsync(cancellationToken);
+                await transaction.CommitAsync(cancellationToken);
+            }
+        });
     }
 }

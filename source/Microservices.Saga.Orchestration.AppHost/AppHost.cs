@@ -1,9 +1,10 @@
 using Aspire.Hosting;
 
 var builder = DistributedApplication.CreateBuilder(args);
-var postgres = builder.AddPostgres("postgres", port: 57869)
+var postgres = builder.AddPostgres("postgres")
     .WithImageTag("17")
     .WithVolume("postgresql_data", "/var/lib/postgresql/data")
+    .WithEndpoint(name: "postgresendpoint", scheme: "tcp", port: 5432, targetPort: 5432, isProxied: false)
     .WithLifetime(ContainerLifetime.Persistent).WithPgAdmin(pgAdmin => pgAdmin.WithImageTag("9.8.0").WithHostPort(5050).WithVolume("pgadmin_data", "/var/lib/pgadmin").WithLifetime(ContainerLifetime.Persistent));
 var identityDatabaseName = "Identity";
 var creationScript = $$"""    
@@ -23,13 +24,13 @@ var consul = builder.AddContainer("consul", "consul")
 
 
 
-var efmigration = builder.AddProject<Projects.Identity>("efmigration", "EFMigration")
+var identityMigrationService = builder.AddProject<Projects.Identity>("identitymigration", "EFMigration")
     .WithReference(identityDB)
     .WaitFor(identityDB);
 
 var identityServer = builder.AddProject<Projects.Identity_STS_Identity>("identityserver");
 identityServer.WithHttpHealthCheck("/health")
-      .WaitForCompletion(efmigration, 0)
+      .WaitForCompletion(identityMigrationService, 0)
       .WithReference(identityDB)
       .WaitFor(identityDB)
       .WaitFor(consul);
@@ -61,9 +62,13 @@ ocelotApiGateway.WithHttpHealthCheck("/health")
           .WithReference(identityServer)
           .WaitFor(identityServer);
 
+var productMigrationService = builder.AddProject<Projects.Product_API>("productmigration", "EFMigration")
+    .WithReference(productDB)
+    .WaitFor(productDB);
 
 var productApi = builder.AddProject<Projects.Product_API>("productapi");
 productApi.WithHttpHealthCheck("/health")
+           .WaitForCompletion(productMigrationService, 0)
           .WaitFor(consul)
           .WithReference(identityServer)
           .WaitFor(identityServer)
