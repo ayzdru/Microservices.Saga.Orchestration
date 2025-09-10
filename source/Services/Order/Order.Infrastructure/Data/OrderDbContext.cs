@@ -27,7 +27,17 @@ namespace Order.Infrastructure.Data
         {
             builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
             base.OnModelCreating(builder);
-        }     
-
+            ConfigureIdentity(builder);
+        }
+        private void ConfigureIdentity(ModelBuilder builder)
+        {
+            builder.Entity<Role>().ToTable(nameof(Roles));
+            builder.Entity<RoleClaim>().ToTable(nameof(RoleClaims));
+            builder.Entity<UserRole>().ToTable(nameof(UserRoles));
+            builder.Entity<User>().ToTable(nameof(Users));
+            builder.Entity<UserLogin>().ToTable(nameof(UserLogins));
+            builder.Entity<UserClaim>().ToTable(nameof(UserClaims));
+            builder.Entity<UserToken>().ToTable(nameof(UserTokens));
+        }
     }
 }

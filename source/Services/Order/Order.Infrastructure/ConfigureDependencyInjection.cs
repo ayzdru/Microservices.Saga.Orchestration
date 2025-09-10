@@ -4,21 +4,17 @@ using BuildingBlocks.Infrastructure;
 using BuildingBlocks.MassTransit.Interfaces;
 using BuildingBlocks.MassTransit.Services;
 using BuildingBlocks.MassTransit.Settings;
-using FluentValidation;
 using MassTransit;
-using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Payment.Application;
-using Payment.Application.Interfaces;
-using Payment.Infrastructure.Data;
+using Order.Application;
+using Order.Application.Interfaces;
+using Order.Infrastructure.Data;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -26,7 +22,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Payment.Infrastructure
+namespace Order.Infrastructure
 {
     public static class ConfigureDependencyInjection
     {
@@ -34,18 +30,18 @@ namespace Payment.Infrastructure
         {
             builder.Services.AddBuildingBlocksInfrastructure();
 
-            builder.Services.AddDbContext<PaymentDbContext>((sp, options) =>
+            builder.Services.AddDbContext<OrderDbContext>((sp, options) =>
             {
                 options.AddInterceptors(sp.GetServices<ISaveChangesInterceptor>());
                 options.UseNpgsql(
-                    builder.Configuration.GetConnectionString("PaymentDbConnection"));
+                    builder.Configuration.GetConnectionString("OrderDbConnection"));
             });
-            builder.Services.AddIdentity<User, Role>().AddEntityFrameworkStores<PaymentDbContext>();
+            builder.Services.AddIdentity<User, Role>().AddEntityFrameworkStores<OrderDbContext>();
             var rabbitMqSettings = builder.Configuration.GetSection("RabbitMQ").Get<RabbitMQSettings>();
 
             builder.Services.AddMassTransit(x =>
             {
-                x.AddEntityFrameworkOutbox<PaymentDbContext>(o =>
+                x.AddEntityFrameworkOutbox<OrderDbContext>(o =>
                 {
                     o.QueryDelay = TimeSpan.FromSeconds(1);
 
@@ -64,10 +60,10 @@ namespace Payment.Infrastructure
                 });
             });
             builder.Services.AddScoped<IMassTransitService, MassTransitService>();
-            builder.Services.AddScoped<IApplicationDbContext>(provider => provider.GetRequiredService<PaymentDbContext>());
-            builder.Services.AddScoped<PaymentDbContextInitializer>();
+            builder.Services.AddScoped<IApplicationDbContext>(provider => provider.GetRequiredService<OrderDbContext>());
+            builder.Services.AddScoped<OrderDbContextInitializer>();
             builder.Services.AddApplication();
-            return  builder;
+            return builder;
         }
     }
 }

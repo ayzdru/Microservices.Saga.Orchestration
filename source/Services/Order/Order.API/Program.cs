@@ -1,6 +1,7 @@
 
 using BuildingBlocks.Web;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Order.Infrastructure;
 using Order.Infrastructure.Data;
 
 namespace Order.API
@@ -10,6 +11,7 @@ namespace Order.API
         public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+            builder.AddInfrastructure().AddWeb();
             builder.Services.AddControllers();
             // appsettings.json'dan ayarlarý çekiyoruz
             var jwtSettings = builder.Configuration.GetSection("JwtBearer");
@@ -35,7 +37,6 @@ namespace Order.API
 
             // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
             builder.Services.AddOpenApi();
-            builder.Services.AddHttpContextAccessor();
 
             builder.Services.AddScoped<TokenHandler>();
 

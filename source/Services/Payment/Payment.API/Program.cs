@@ -1,5 +1,6 @@
 
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Payment.Infrastructure;
 using Payment.Infrastructure.Data;
 
 namespace Payment.API
@@ -9,6 +10,7 @@ namespace Payment.API
         public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+            builder.AddInfrastructure().AddWeb();
             // appsettings.json'dan ayarlarý çekiyoruz
             var jwtSettings = builder.Configuration.GetSection("JwtBearer");
 

@@ -1,6 +1,8 @@
-﻿namespace Order.Core.Entities;
+﻿using BuildingBlocks.Core.Common;
 
-public class OrderItem
+namespace Order.Core.Entities;
+
+public class OrderItem : BaseEntity
 {
     public Guid OrderId { get; private set; }
     public Order Order { get; private set; }

@@ -13,7 +13,6 @@ using Product.Application.Interfaces;
 using Product.Application.Queries;
 using Product.Infrastructure;
 using Product.Infrastructure.Data;
-using Product.Web.IoC;
 
 namespace Product.API
 {

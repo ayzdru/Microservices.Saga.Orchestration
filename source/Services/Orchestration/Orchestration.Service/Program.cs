@@ -53,8 +53,12 @@ builder.AddInfrastructure().AddWeb();
 using IHost host = builder.Build();
 using (var scope = host.Services.CreateScope())
 {
-    var initializer = scope.ServiceProvider.GetRequiredService<OrchestrationDbContextInitializer>();
-    await initializer.InitialiseAsync();
-    await initializer.SeedAsync();
+    var identityInitializer = scope.ServiceProvider.GetRequiredService<OrchestrationDbContextInitializer>();
+    await identityInitializer.InitialiseAsync();
+    await identityInitializer.SeedAsync();
+
+    var sagaInitializer = scope.ServiceProvider.GetRequiredService<OrchestrationSagaDbContextInitializer>();
+    await sagaInitializer.InitialiseAsync();
+    await sagaInitializer.SeedAsync();
 }
 await host.RunAsync();

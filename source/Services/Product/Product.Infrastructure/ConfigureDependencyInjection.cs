@@ -44,8 +44,7 @@ namespace Product.Infrastructure
                 options.AddInterceptors(sp.GetServices<ISaveChangesInterceptor>());
                 options.UseNpgsql(builder.Configuration.GetConnectionString("ProductDbConnection"));
             });
-            builder.Services.AddIdentity<User, Role>()
-            .AddEntityFrameworkStores<ProductDbContext>();
+            builder.Services.AddIdentity<User, Role>().AddEntityFrameworkStores<ProductDbContext>();
             var rabbitMqSettings = builder.Configuration.GetSection("RabbitMQ").Get<RabbitMQSettings>();
 
             builder.Services.AddMassTransit(x =>

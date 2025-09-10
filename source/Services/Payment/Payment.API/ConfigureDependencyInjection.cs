@@ -1,11 +1,11 @@
 ﻿
-using Product.API.Services;
+using Payment.API.Services;
 using BuildingBlocks.Core.Interfaces;
 
 
-namespace Product.Web.IoC
+namespace Payment.API
 {
-    public static class ConfigureServicesDependencyInjection
+    public static class ConfigureDependencyInjection
     {
         public static WebApplicationBuilder AddWeb(this WebApplicationBuilder builder)
         {

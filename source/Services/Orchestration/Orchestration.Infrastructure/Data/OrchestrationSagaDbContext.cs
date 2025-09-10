@@ -19,7 +19,7 @@ namespace Orchestration.Infrastructure.Data
 {
     public class OrchestrationSagaDbContext : SagaDbContext
     {       
-        public OrchestrationSagaDbContext(DbContextOptions<OrchestrationDbContext> options)
+        public OrchestrationSagaDbContext(DbContextOptions<OrchestrationSagaDbContext> options)
            : base(options)
         {
         }

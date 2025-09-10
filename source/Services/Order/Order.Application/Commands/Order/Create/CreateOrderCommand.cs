@@ -39,7 +39,7 @@ namespace Order.Application.Commands.Order.Create
         }
         public async Task<ApiResult<string>> Handle(CreateOrderCommand request, CancellationToken cancellationToken)
         {
-            var newOrder = new Core.Entities.Order(request.UserId, OrderStatus.Pending, request.OrderItems.Select(item => new Core.Entities.OrderItem(item.ProductId, item.Price, item.Count)).ToList());
+            var newOrder = new Core.Entities.Order(request.UserId, OrderStatus.Pending, request.OrderItems.Select(item => new Core.Entities.OrderItem(item.ProductId, 0 /* item.Price*/, item.Count)).ToList());
            
             await _applicationDbContext.Orders.AddAsync(newOrder, cancellationToken);
             await _applicationDbContext.SaveChangesAsync(cancellationToken);
@@ -49,9 +49,8 @@ namespace Order.Application.Commands.Order.Create
                 OrderId = newOrder.Id,
                 UserId = request.UserId,                
                 TotalPrice = newOrder.OrderItems.Sum(x => x.Price * x.Count),
-                OrderItems = newOrder.OrderItems.Select(item => new OrderItem
+                OrderItems = newOrder.OrderItems.Select(item => new BuildingBlocks.EventBus.Models.Order.OrderItem
                 {
-
                     Price = item.Price,
                     Count = item.Count,
                     ProductId = item.ProductId
