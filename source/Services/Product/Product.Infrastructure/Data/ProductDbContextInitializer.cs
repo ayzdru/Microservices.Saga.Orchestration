@@ -6,8 +6,10 @@ using Product.Core.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Timers;
 
 namespace Product.Infrastructure.Data;
 
@@ -15,11 +17,14 @@ public class ProductDbContextInitializer
 {
     private readonly ILogger<ProductDbContextInitializer> _logger;
     private readonly ProductDbContext _context;
-
-    public ProductDbContextInitializer(ILogger<ProductDbContextInitializer> logger, ProductDbContext context)
+    private readonly UserManager<User> _userManager;
+    private readonly RoleManager<Role> _roleManager;
+    public ProductDbContextInitializer(ILogger<ProductDbContextInitializer> logger, ProductDbContext context, UserManager<User> userManager, RoleManager<Role> roleManager)
     {
         _logger = logger;
         _context = context;
+        _userManager = userManager;
+        _roleManager = roleManager;
     }
 
     public async Task InitialiseAsync(CancellationToken cancellationToken)
@@ -71,13 +76,45 @@ public class ProductDbContextInitializer
                 await _context.SaveChangesAsync(cancellationToken);
                 await transaction.CommitAsync(cancellationToken);
             }
-            if (!_context.Users.Any())
+            var roleName = "Administrator";
+            if (_context.Roles.Any() == false)
             {
-                var userId = Guid.Parse("d78c3a48-d29b-42c1-b4ad-6fe527fb00d2");
-                await using var transaction = await _context.Database.BeginTransactionAsync(cancellationToken);
-                _context.Users.Add(new User(userId));
-                await _context.SaveChangesAsync(cancellationToken);
-                await transaction.CommitAsync(cancellationToken);
+               
+                if (!await _roleManager.RoleExistsAsync(roleName))
+                {
+                    var role = new Role
+                    {
+                        Name = roleName
+                    };
+
+                    var result = await _roleManager.CreateAsync(role);
+
+                    if (result.Succeeded)
+                    {
+                        
+                    }
+                }
+            }
+            if (_context.Users.Any() == false)
+            {
+                var identityUser = new User
+                {
+                    Id = Guid.Parse("d78c3a48-d29b-42c1-b4ad-6fe527fb00d2"),
+                    UserName = "admin",
+                    Email = "admin@email.com",
+                    EmailConfirmed = true
+                };
+
+               
+
+
+                var result = await _userManager.CreateAsync(identityUser);
+
+                if (result.Succeeded)
+                {
+                    await _userManager.AddClaimAsync(identityUser, new Claim("name","admin"));
+                    await _userManager.AddToRoleAsync(identityUser, roleName);
+                }
             }
         });
     }

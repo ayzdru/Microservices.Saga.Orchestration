@@ -1,7 +1,6 @@
 ﻿using Payment.Application;
 using Payment.Application.Interfaces;
 using Payment.Infrastructure.Data;
-using Payment.Infrastructure.Services;
 using FluentValidation;
 using MediatR;
 using Microsoft.AspNetCore.Hosting;
@@ -28,9 +27,7 @@ namespace Payment.Infrastructure
         public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration, IWebHostEnvironment webHostEnvironment)
         {
             services.AddBuildingBlocksInfrastructure();
-
-            services.AddTransient<IEmailSender, EmailService>();
-            services.AddTransient<IIdentityService, IdentityService>();
+            
             services.AddDbContext<PaymentDbContext>((sp, options) =>
             {
                 options.AddInterceptors(sp.GetServices<ISaveChangesInterceptor>());

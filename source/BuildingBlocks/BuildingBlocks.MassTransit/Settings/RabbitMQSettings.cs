@@ -1,3 +1,4 @@
+namespace BuildingBlocks.MassTransit.Settings;
 public class RabbitMQSettings
 {
     public string Host { get; set; } = string.Empty;

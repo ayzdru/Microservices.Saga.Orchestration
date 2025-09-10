@@ -12,6 +12,7 @@
     <Folder Include="Data\Migrations\" />
     <Folder Include="Extensions\" />
     <Folder Include="IoC\" />
+    <Folder Include="Services\" />
   </ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\..\..\BuildingBlocks\BuildingBlocks.EventBus\BuildingBlocks.EventBus.csproj" />

@@ -1,9 +1,11 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using BuildingBlocks.Core.Entities;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace Orchestration.Infrastructure.Data;
@@ -12,11 +14,14 @@ public class OrchestrationDbContextInitializer
 {
     private readonly ILogger<OrchestrationDbContextInitializer> _logger;
     private readonly OrchestrationDbContext _context;
-
-    public OrchestrationDbContextInitializer(ILogger<OrchestrationDbContextInitializer> logger, OrchestrationDbContext context)
+    private readonly UserManager<User> _userManager;
+    private readonly RoleManager<Role> _roleManager;
+    public OrchestrationDbContextInitializer(ILogger<OrchestrationDbContextInitializer> logger, OrchestrationDbContext context, UserManager<User> userManager, RoleManager<Role> roleManager)
     {
         _logger = logger;
         _context = context;
+        _userManager = userManager;
+        _roleManager = roleManager;
     }
 
     public async Task InitialiseAsync()
@@ -47,6 +52,50 @@ public class OrchestrationDbContextInitializer
 
     public async Task TrySeedAsync()
     {
-        
+        var strategy = _context.Database.CreateExecutionStrategy();
+        await strategy.ExecuteAsync(async () =>
+        {
+
+            var roleName = "Administrator";
+            if (_context.Roles.Any() == false)
+            {
+
+                if (!await _roleManager.RoleExistsAsync(roleName))
+                {
+                    var role = new Role
+                    {
+                        Name = roleName
+                    };
+
+                    var result = await _roleManager.CreateAsync(role);
+
+                    if (result.Succeeded)
+                    {
+
+                    }
+                }
+            }
+            if (_context.Users.Any() == false)
+            {
+                var identityUser = new User
+                {
+                    Id = Guid.Parse("d78c3a48-d29b-42c1-b4ad-6fe527fb00d2"),
+                    UserName = "admin",
+                    Email = "admin@email.com",
+                    EmailConfirmed = true
+                };
+
+
+
+
+                var result = await _userManager.CreateAsync(identityUser);
+
+                if (result.Succeeded)
+                {
+                    await _userManager.AddClaimAsync(identityUser, new Claim("name", "admin"));
+                    await _userManager.AddToRoleAsync(identityUser, roleName);
+                }
+            }
+        });
     }
 }

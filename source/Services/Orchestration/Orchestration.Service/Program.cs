@@ -1,4 +1,5 @@
-﻿using MassTransit;
+﻿using BuildingBlocks.MassTransit.Settings;
+using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -6,7 +7,6 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Orchestration.Infrastructure;
 using Orchestration.Infrastructure.Data;
-using Orchestration.Infrastructure.Services;
 using Orchestration.Infrastructure.StateMachines.Order;
 using Orchestration.Web.IoC;
 using Serilog;
@@ -46,19 +46,11 @@ builder.Services.AddLogging(config =>
     config.AddSerilog(logger);
 });
 
-builder.Services.AddDbContext<OrchestrationDbContext>(x =>
-{
-    var connectionString = builder.Configuration.GetConnectionString("OrchestrationDbConnection");
 
-    x.UseNpgsql(connectionString, options =>
-    {
-        options.MinBatchSize(1);
-    });
-});
 
 builder.AddInfrastructure().AddWeb();
 var rabbitMqSettings = builder.Configuration.GetSection("RabbitMQ").Get<RabbitMQSettings>();
-builder.Services.AddMassTransit(x =>
+builder.Services.AddMassTransit((Action<IBusRegistrationConfigurator>)(x =>
 {
     x.UsingRabbitMq((context, cfg) =>
     {
@@ -70,24 +62,24 @@ builder.Services.AddMassTransit(x =>
 
         cfg.ConfigureEndpoints(context);
     });
-    x.AddEntityFrameworkOutbox<OrchestrationDbContext>(o =>
+    EntityFrameworkOutboxConfigurationExtensions.AddEntityFrameworkOutbox<OrchestrationDbContext>(x, (Action<IEntityFrameworkOutboxConfigurator>?)(o =>
     {
         o.UsePostgres();
 
         o.DuplicateDetectionWindow = TimeSpan.FromSeconds(30);
-    });
+    }));
 
     x.SetKebabCaseEndpointNameFormatter();
 
 
-    x.AddSagaStateMachine<OrderStateMachine, OrderStateInstance>()
-        .EntityFrameworkRepository(r =>
+    x.AddSagaStateMachine<OrderStateMachine, OrderStateInstance, OrderStateDefinition>()
+        .EntityFrameworkRepository((Action<IEntityFrameworkSagaRepositoryConfigurator<OrderStateInstance>>)(r =>
         {
             r.ExistingDbContext<OrchestrationDbContext>();
             r.UsePostgres();
-        });
+        }));
     
-});
+}));
 using IHost host = builder.Build();
 using (var scope = host.Services.CreateScope())
 {

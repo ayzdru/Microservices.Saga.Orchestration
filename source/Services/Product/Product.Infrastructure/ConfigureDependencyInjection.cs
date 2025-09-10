@@ -17,7 +17,6 @@ using Product.Application.Interfaces;
 using Product.Core.Entities;
 using BuildingBlocks.Core.Interfaces;
 using Product.Infrastructure.Data;
-using Product.Infrastructure.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -36,9 +35,7 @@ namespace Product.Infrastructure
         public static WebApplicationBuilder AddInfrastructure(this WebApplicationBuilder builder)
         {
             builder.Services.AddBuildingBlocksInfrastructure();
-
-            builder.Services.AddTransient<IEmailSender, EmailService>();
-            builder.Services.AddTransient<IIdentityService, IdentityService>();
+           
             builder.Services.AddDbContext<ProductDbContext>((sp, options) =>
             {
                 options.AddInterceptors(sp.GetServices<ISaveChangesInterceptor>());

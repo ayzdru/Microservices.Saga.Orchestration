@@ -8,11 +8,11 @@ using System.Text;
 
 namespace BuildingBlocks.Infrastructure.Data.Configurations
 {
-    public class UserConfiguration : BaseConfiguration<User>
+    public class UserConfiguration : IEntityTypeConfiguration<User>
     {
-        public override void Configure(EntityTypeBuilder<User> builder)
+        public void Configure(EntityTypeBuilder<User> builder)
         {
-            base.Configure(builder);           
+            
         }        
     }
 }

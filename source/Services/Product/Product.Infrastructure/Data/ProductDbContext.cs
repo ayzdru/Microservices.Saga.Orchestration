@@ -1,6 +1,7 @@
 ﻿using BuildingBlocks.Core.Entities;
 using BuildingBlocks.Infrastructure.Data.Configurations;
 using MediatR;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Product.Application.Interfaces;
@@ -14,7 +15,7 @@ using System.Threading.Tasks;
 
 namespace Product.Infrastructure.Data
 {
-    public class ProductDbContext : DbContext, IApplicationDbContext
+    public class ProductDbContext : IdentityDbContext<User, Role, Guid, UserClaim, UserRole, UserLogin, RoleClaim, UserToken>, IApplicationDbContext
     {
         public DbSet<Product.Core.Entities.Product> Products { get; set; }
         public DbSet<User> Users { get; set; }

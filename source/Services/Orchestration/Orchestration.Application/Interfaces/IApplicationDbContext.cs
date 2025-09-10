@@ -8,7 +8,6 @@ namespace Orchestration.Application.Interfaces
 {
     public interface IApplicationDbContext
     {
-        DbSet<User> Users { get; set; }
         DatabaseFacade Database { get; }
         Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
     }

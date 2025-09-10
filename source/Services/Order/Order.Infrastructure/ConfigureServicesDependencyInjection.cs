@@ -28,9 +28,7 @@ namespace Order.Infrastructure
         public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration, IWebHostEnvironment webHostEnvironment)
         {
             services.AddBuildingBlocksInfrastructure();
-
-            services.AddTransient<IEmailSender, EmailService>();
-            services.AddTransient<IIdentityService, IdentityService>();
+          
             services.AddDbContext<OrderDbContext>((sp, options) =>
             {
                 options.AddInterceptors(sp.GetServices<ISaveChangesInterceptor>());

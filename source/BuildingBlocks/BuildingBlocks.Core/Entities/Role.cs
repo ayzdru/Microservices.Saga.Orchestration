@@ -5,7 +5,7 @@ using System.Text;
 
 namespace BuildingBlocks.Core.Entities
 {
-    public class User : IdentityUser<Guid>
+    public class Role : IdentityRole<Guid>
     {
 
     }

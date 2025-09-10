@@ -1,5 +1,7 @@
-﻿using BuildingBlocks.Infrastructure.Data.Configurations;
+﻿using BuildingBlocks.Core.Entities;
+using BuildingBlocks.Infrastructure.Data.Configurations;
 using MediatR;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Order.Application.Interfaces;
@@ -13,7 +15,7 @@ using System.Threading.Tasks;
 
 namespace Order.Infrastructure.Data
 {
-    public class OrderDbContext : DbContext, IApplicationDbContext
+    public class OrderDbContext : IdentityDbContext<User, Role, Guid, UserClaim, UserRole, UserLogin, RoleClaim, UserToken>, IApplicationDbContext
     {
         public DbSet<Order.Core.Entities.Order> Orders { get; set; }
         public OrderDbContext(DbContextOptions<OrderDbContext> options)

@@ -8,6 +8,15 @@ public class OrderStateMap: SagaClassMap<OrderStateInstance>
 {
     protected override void Configure(EntityTypeBuilder<OrderStateInstance> entity, ModelBuilder model)
     {
-        
+        entity.Property(x => x.CurrentState);
+
+        entity.Property(x => x.PaymentAccountId)
+               .IsRequired();
+
+        entity.Property(x => x.OrderId)
+            .IsRequired();
+
+        entity.Property(x => x.TotalPrice)
+            .HasDefaultValue(0);
     }
 }
