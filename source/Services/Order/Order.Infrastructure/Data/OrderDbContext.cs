@@ -1,4 +1,5 @@
 ﻿using BuildingBlocks.Core.Entities;
+using MassTransit;
 using MediatR;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -27,7 +28,10 @@ namespace Order.Infrastructure.Data
         {
             builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
             base.OnModelCreating(builder);
-            ConfigureIdentity(builder);
+            ConfigureIdentity(builder); 
+            builder.AddInboxStateEntity();
+            builder.AddOutboxMessageEntity();
+            builder.AddOutboxStateEntity();
         }
         private void ConfigureIdentity(ModelBuilder builder)
         {
