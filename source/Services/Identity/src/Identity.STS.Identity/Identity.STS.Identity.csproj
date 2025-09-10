@@ -40,7 +40,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\..\..\..\Shared\Microservices.Saga.Orchestration.ServiceDefaults\Microservices.Saga.Orchestration.ServiceDefaults.csproj" />
+		<ProjectReference Include="..\..\..\..\Aspire\Aspire.ServiceDefaults\Aspire.ServiceDefaults.csproj" />
 		<ProjectReference Include="..\Identity.AuditLogging.EntityFramework\Identity.AuditLogging.EntityFramework.csproj" />
 		<ProjectReference Include="..\Identity.EntityFramework.Configuration\Identity.EntityFramework.Configuration.csproj" />
 		<ProjectReference Include="..\Identity.EntityFramework.Shared\Identity.EntityFramework.Shared.csproj" />

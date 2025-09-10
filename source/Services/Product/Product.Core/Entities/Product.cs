@@ -24,5 +24,13 @@ namespace Product.Core.Entities
             Price = price;
             Stock = stock;
         }
+        public void StockDecrease(int count)
+        {
+            Stock -= count;
+        }
+        public void StockIncrease(int count)
+        {
+            Stock += count;
+        }
     }
 }

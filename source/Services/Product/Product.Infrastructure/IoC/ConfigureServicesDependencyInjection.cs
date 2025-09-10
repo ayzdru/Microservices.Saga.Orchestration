@@ -1,4 +1,6 @@
-﻿using FluentValidation;
+﻿using BuildingBlocks.MassTransit.Interfaces;
+using BuildingBlocks.MassTransit.Services;
+using FluentValidation;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -43,7 +45,8 @@ namespace Product.Infrastructure.IoC
             {
                 options.AddInterceptors(sp.GetServices<ISaveChangesInterceptor>());
                 options.UseNpgsql(builder.Configuration.GetConnectionString("ProductDbConnection"));
-            });
+            }); 
+            builder.Services.AddScoped<IMassTransitService, MassTransitService>();
             builder.Services.AddScoped<IApplicationDbContext, ProductDbContext>();
             builder.Services.AddScoped<ProductDbContextInitializer>();
             builder.Services.AddApplication();

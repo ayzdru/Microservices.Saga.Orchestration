@@ -36,15 +36,15 @@ namespace Order.Infrastructure.IoC
 
             services.AddTransient<IEmailSender, EmailService>();
             services.AddTransient<IIdentityService, IdentityService>();
-            services.AddDbContext<OrchestrationDbContext>((sp, options) =>
+            services.AddDbContext<OrderDbContext>((sp, options) =>
             {
                 options.AddInterceptors(sp.GetServices<ISaveChangesInterceptor>());
                 options.UseNpgsql(
                     configuration.GetConnectionString("Order"));
             });
 
-            services.AddScoped<IApplicationDbContext>(provider => provider.GetService<OrchestrationDbContext>());
-            services.AddScoped<OrchestrationDbContextInitializer>();
+            services.AddScoped<IApplicationDbContext>(provider => provider.GetRequiredService<OrderDbContext>());
+            services.AddScoped<OrderDbContextInitializer>();
             services.AddApplication();
             return services;
         }

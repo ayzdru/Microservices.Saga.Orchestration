@@ -23,7 +23,6 @@ namespace Orchestration.Infrastructure.Data
     public class OrchestrationDbContext : SagaDbContext, IApplicationDbContext
     {
         public DbSet<User> Users { get; set; }
-        public DbSet<OrderState> OrderStates { get; set; }
         public OrchestrationDbContext(DbContextOptions<OrchestrationDbContext> options)
            : base(options)
         {

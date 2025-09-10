@@ -39,7 +39,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\Shared\Microservices.Saga.Orchestration.ServiceDefaults\Microservices.Saga.Orchestration.ServiceDefaults.csproj" />
+    <ProjectReference Include="..\..\..\..\Aspire\Aspire.ServiceDefaults\Aspire.ServiceDefaults.csproj" />
     <ProjectReference Include="..\Identity.BusinessLogic.Identity\Identity.BusinessLogic.Identity.csproj" />
     <ProjectReference Include="..\Identity.BusinessLogic\Identity.BusinessLogic.csproj" />
     <ProjectReference Include="..\Identity.EntityFramework.MySql\Identity.EntityFramework.MySql.csproj" />

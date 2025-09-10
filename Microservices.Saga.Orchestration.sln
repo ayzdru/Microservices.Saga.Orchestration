@@ -5,7 +5,7 @@ VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "source", "source", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shared", "Shared", "{C6B9CA6E-586B-4BED-9CF0-B5AF69D49664}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "BuildingBlocks", "BuildingBlocks", "{C6B9CA6E-586B-4BED-9CF0-B5AF69D49664}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ApiGateways", "ApiGateways", "{112D5237-C1E7-409A-8B69-44E54229F2BB}"
 EndProject
@@ -15,11 +15,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Web", "Web", "{E09DD6CA-8BA
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Identity", "Identity", "{C18F8E4D-1E8B-4188-ABBE-509665BDAAAC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microservices.Saga.Orchestration.AppHost", "source\Microservices.Saga.Orchestration.AppHost\Microservices.Saga.Orchestration.AppHost.csproj", "{ECFD0674-EF88-447D-9DF3-7934880E1929}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aspire.AppHost", "source\Aspire\Aspire.AppHost\Aspire.AppHost.csproj", "{ECFD0674-EF88-447D-9DF3-7934880E1929}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microservices.Saga.Orchestration.ServiceDefaults", "source\Shared\Microservices.Saga.Orchestration.ServiceDefaults\Microservices.Saga.Orchestration.ServiceDefaults.csproj", "{ED667514-2527-ACA3-7480-46EB3A180F05}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aspire.ServiceDefaults", "source\Aspire\Aspire.ServiceDefaults\Aspire.ServiceDefaults.csproj", "{ED667514-2527-ACA3-7480-46EB3A180F05}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microservices.Saga.Orchestration.Tests", "tests\Microservices.Saga.Orchestration.Tests\Microservices.Saga.Orchestration.Tests.csproj", "{B2D9E81C-6E5F-AC3E-14D3-623825AB4257}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aspire.Tests", "tests\Aspire\Aspire.Tests\Aspire.Tests.csproj", "{B2D9E81C-6E5F-AC3E-14D3-623825AB4257}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Web", "Web", "{9B06DE56-AE27-49E5-B081-F1AFBF9D1431}"
 EndProject
@@ -49,7 +49,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Orchestration", "Orchestrat
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Orchestration.Service", "source\Services\Orchestration\Orchestration.Service\Orchestration.Service.csproj", "{D23C0632-96B4-4018-914C-F6E02F7665C7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microservices.Saga.Orchestration.Shared", "source\Shared\Microservices.Saga.Orchestration.Shared\Microservices.Saga.Orchestration.Shared.csproj", "{6AAD00B2-C7D6-4F0E-ADB7-60EA4EC64DE9}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BuildingBlocks.EventBus", "source\BuildingBlocks\BuildingBlocks.EventBus\BuildingBlocks.EventBus.csproj", "{6AAD00B2-C7D6-4F0E-ADB7-60EA4EC64DE9}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Orchestration.Core", "source\Services\Orchestration\Orchestration.Core\Orchestration.Core.csproj", "{E0C1DD85-E4FE-4E77-8190-785B1117FC7D}"
 EndProject
@@ -80,6 +80,12 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlazorWebAppOidc", "source\Web\BlazorWebAppOidc\BlazorWebAppOidc.csproj", "{9D5E6423-E3C6-098D-72BB-869758186C05}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ocelot.Provider.Consul", "source\ApiGateways\Ocelot.Provider.Consul\Ocelot.Provider.Consul.csproj", "{70CCFC98-1E9F-81A2-28B5-0AD1A5D41700}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Aspire", "Aspire", "{56F3C10C-A839-46F6-8976-324205868605}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Aspire", "Aspire", "{CD73E2FA-374B-414B-B3B4-923F43CC2E19}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BuildingBlocks.MassTransit", "source\BuildingBlocks\BuildingBlocks.MassTransit\BuildingBlocks.MassTransit.csproj", "{F7B7E462-56A8-4978-B8C6-65FC50E13AF7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -195,6 +201,10 @@ Global
 		{70CCFC98-1E9F-81A2-28B5-0AD1A5D41700}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{70CCFC98-1E9F-81A2-28B5-0AD1A5D41700}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{70CCFC98-1E9F-81A2-28B5-0AD1A5D41700}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F7B7E462-56A8-4978-B8C6-65FC50E13AF7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F7B7E462-56A8-4978-B8C6-65FC50E13AF7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F7B7E462-56A8-4978-B8C6-65FC50E13AF7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F7B7E462-56A8-4978-B8C6-65FC50E13AF7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -205,9 +215,9 @@ Global
 		{44938AF1-9953-4D76-B4C3-10F043BF4986} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 		{E09DD6CA-8BA7-4E90-98A6-AC5940C30D91} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 		{C18F8E4D-1E8B-4188-ABBE-509665BDAAAC} = {44938AF1-9953-4D76-B4C3-10F043BF4986}
-		{ECFD0674-EF88-447D-9DF3-7934880E1929} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
-		{ED667514-2527-ACA3-7480-46EB3A180F05} = {C6B9CA6E-586B-4BED-9CF0-B5AF69D49664}
-		{B2D9E81C-6E5F-AC3E-14D3-623825AB4257} = {FE72E2FD-A75C-4D74-8087-EAA1038FF4A9}
+		{ECFD0674-EF88-447D-9DF3-7934880E1929} = {56F3C10C-A839-46F6-8976-324205868605}
+		{ED667514-2527-ACA3-7480-46EB3A180F05} = {56F3C10C-A839-46F6-8976-324205868605}
+		{B2D9E81C-6E5F-AC3E-14D3-623825AB4257} = {CD73E2FA-374B-414B-B3B4-923F43CC2E19}
 		{9B06DE56-AE27-49E5-B081-F1AFBF9D1431} = {112D5237-C1E7-409A-8B69-44E54229F2BB}
 		{9668F843-850D-4A61-A336-AC774881C6DF} = {9B06DE56-AE27-49E5-B081-F1AFBF9D1431}
 		{3EF7ECE7-4864-4070-BAD0-64458BD2005A} = {44938AF1-9953-4D76-B4C3-10F043BF4986}
@@ -237,6 +247,9 @@ Global
 		{08B30811-4C85-7073-16FA-9152F3329D90} = {E09DD6CA-8BA7-4E90-98A6-AC5940C30D91}
 		{9D5E6423-E3C6-098D-72BB-869758186C05} = {E09DD6CA-8BA7-4E90-98A6-AC5940C30D91}
 		{70CCFC98-1E9F-81A2-28B5-0AD1A5D41700} = {112D5237-C1E7-409A-8B69-44E54229F2BB}
+		{56F3C10C-A839-46F6-8976-324205868605} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{CD73E2FA-374B-414B-B3B4-923F43CC2E19} = {FE72E2FD-A75C-4D74-8087-EAA1038FF4A9}
+		{F7B7E462-56A8-4978-B8C6-65FC50E13AF7} = {C6B9CA6E-586B-4BED-9CF0-B5AF69D49664}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {58D7D618-54DB-4C5C-A5D2-10FC55BE1315}

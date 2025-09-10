@@ -1,106 +1,118 @@
+﻿using EventBus.Events;
+using EventBus.Events.Interfaces;
+using EventBus.Messages;
+using EventBus.Messages.Interfaces;
 using MassTransit;
-using Microservices.Saga.Orchestration.Shared.Events.Order;
-using Microservices.Saga.Orchestration.Shared.Events.Payment;
-using Microservices.Saga.Orchestration.Shared.Events.Product;
-using Orchestration.Core.Models.Product;
+using Microsoft.Extensions.Logging;
 
-namespace Orchestration.Infrastructure.StateMachines.Order
+
+namespace Orchestration.Infrastructure.StateMachines.Order;
+
+public class OrderStateMachine : MassTransitStateMachine<OrderStateInstance>
 {
-    public class OrderStateMachine : MassTransitStateMachine<OrderStateMachineInstance>
+    private readonly ILogger _logger;
+
+    // Commands
+    private Event<ICreateOrderMessage> CreateOrderMessage { get; set; }
+
+    // Events
+    public Event<IStockReservedEvent> StockReservedEvent { get; set; }
+    public Event<IStockReservationFailedEvent> StockReservationFailedEvent { get; set; }
+    public Event<IPaymentCompletedEvent> PaymentCompletedEvent { get; set; }
+    public Event<IPaymentFailedEvent> PaymentFailedEvent { get; set; }
+
+    // States
+    public State OrderCreated { get; set; }
+    public State StockReserved { get; set; }
+    public State StockReservationFailed { get; set; }
+    public State PaymentCompleted { get; set; }
+    public State PaymentFailed { get; set; }
+
+    public OrderStateMachine(ILogger<OrderStateMachine> logger)
     {
-        public Event<OrderStartedEvent> OrderStartedEvent { get; set; }
-        public Event<ProductStockReservationSuccessEvent> ProductStockReservationSuccessEvent { get; set; }
-        public Event<ProductStockReservationFailedEvent> ProductStockReservationFailedEvent { get; set; }
-        public Event<PaymentSuccessEvent> PaymentSuccessEvent { get; set; }
-        public Event<PaymentFailedEvent> PaymentFailedEvent { get; set; }
+        _logger = logger; 
+        InstanceState(x => x.CurrentState);
 
-        public State OrderInitialized { get; set; }
-        public State ProductStockReservationSuccess { get; set; }
-        public State ProductStockReservationFailed { get; set; }
-        public State PaymentSuccess { get; set; }
-        public State PaymentFailed { get; set; }
-        public OrderStateMachine()
-        {
-            InstanceState(instance => instance.CurrentState);
+        Event(() => CreateOrderMessage, y => y.CorrelateBy<int>(x => x.OrderId, z => z.Message.OrderId)
+            .SelectId(context => Guid.NewGuid()));
+        Event(() => StockReservedEvent, x => x.CorrelateById(y => y.Message.CorrelationId));
+        Event(() => StockReservationFailedEvent, x => x.CorrelateById(y => y.Message.CorrelationId));
+        Event(() => PaymentCompletedEvent, x => x.CorrelateById(y => y.Message.CorrelationId));
 
-            Event(() => OrderStartedEvent,
-                orderStateInstance => orderStateInstance.CorrelateBy<Guid>(database => database.OrderId, @event => @event.Message.OrderId)
-                .SelectId(e => Guid.NewGuid()));
-
-            Event(() => ProductStockReservationSuccessEvent,
-                orderStateInstance => orderStateInstance.CorrelateById(@event => @event.Message.CorrelationId));
-
-            Event(() => ProductStockReservationFailedEvent,
-                orderStateInstance => orderStateInstance.CorrelateById(@event => @event.Message.CorrelationId));
-
-            Event(() => PaymentSuccessEvent,
-                orderStateInstance => orderStateInstance.CorrelateById(@event => @event.Message.CorrelationId));
-
-            Event(() => PaymentFailedEvent,
-                orderStateInstance => orderStateInstance.CorrelateById(@event => @event.Message.CorrelationId));
-
-
-            Initially(When(OrderStartedEvent)
+        Initially(
+            When(CreateOrderMessage)
+                .Then(context => { _logger.LogInformation($"CorrelationId {context.Saga.CorrelationId} - CreateOrderMessage received in OrderStateMachine: {context.Saga}"); })
                 .Then(context =>
                 {
+                    context.Saga.CustomerId = context.Message.CustomerId;
                     context.Saga.OrderId = context.Message.OrderId;
-                    context.Saga.UserId = context.Message.UserId;
-                    context.Saga.TotalPrice = context.Message.TotalPrice;
                     context.Saga.CreatedDate = DateTime.UtcNow;
+                    context.Saga.PaymentAccountId = context.Message.PaymentAccountId;
+                    context.Saga.TotalPrice = context.Message.TotalPrice;
                 })
-                .TransitionTo(OrderInitialized)
-                .Send(new Uri($"queue:{Constants.RabbitMQ.Product_OrderInitializedEventQueue}"),
-                context => new OrderInitializedEvent()
-                {
-                    CorrelationId = context.Saga.CorrelationId,
-                    OrderItems = context.Message.OrderItems
-                }));
+                .Publish(
+                    context => new OrderCreatedEvent
+                    {
+                        CorrelationId = context.Saga.CorrelationId,
+                        OrderItemList = context.Message.OrderItemList
+                    })
+                .TransitionTo(OrderCreated)
+                .Then(context => { _logger.LogInformation($"CorrelationId {context.Saga.CorrelationId} - OrderCreatedEvent published in OrderStateMachine: {context.Saga}"); }));
 
-            During(OrderInitialized,
-                When(ProductStockReservationSuccessEvent)
-                .TransitionTo(ProductStockReservationSuccess)
-                .Send(new Uri($"queue:{Constants.RabbitMQ.Payment_StartedEventQueue}"),
-                context => new PaymentStartedEvent()
-                {
-                    CorrelationId= context.Saga.CorrelationId,
-                    TotalPrice = context.Saga.TotalPrice,
-                    OrderItems = context.Message.OrderItems
-                }),
-                When(ProductStockReservationFailedEvent)
-                .TransitionTo(ProductStockReservationFailed)
-                .Send(new Uri($"queue:{Constants.RabbitMQ.Order_OrderFailedEventQueue}"),
-                context => new OrderFailedEvent
-                {
-                    OrderId = context.Saga.OrderId,
-                    Message = context.Message.Message
-                }));
+        During(OrderCreated,
+            When(StockReservedEvent)
+                .Then(context => { _logger.LogInformation($"CorrelationId {context.Saga.CorrelationId} - StockReservedEvent received in OrderStateMachine: {context.Saga}"); })
+                .TransitionTo(StockReserved)
+                .Send(new Uri($"queue:{EventBusConstants.Queues.CompletePaymentMessageQueueName}"),
+                    context => new CompletePaymentMessage 
+                    {
+                        CorrelationId = context.Saga.CorrelationId,
+                        TotalPrice = context.Saga.TotalPrice,
+                        CustomerId = context.Saga.CustomerId,
+                        OrderItemList = context.Message.OrderItemList
+                    })
+                .Then(context => { _logger.LogInformation($"CorrelationId {context.Saga.CorrelationId} - CompletePaymentMessage sent in OrderStateMachine: {context.Saga}"); }),
+            When(StockReservationFailedEvent)
+                .Then(context => { _logger.LogInformation($"CorrelationId {context.Saga.CorrelationId} - StockReservationFailedEvent received in OrderStateMachine: {context.Saga}"); })
+                .TransitionTo(StockReservationFailed)
+                .Publish(
+                    context => new OrderFailedEvent
+                    {
+                        OrderId = context.Saga.OrderId,
+                        CustomerId = context.Saga.CustomerId,
+                        ErrorMessage = context.Message.ErrorMessage
+                    })
+                .Then(context => { _logger.LogInformation($"CorrelationId {context.Saga.CorrelationId} - OrderFailedEvent published in OrderStateMachine: {context.Saga}"); })
+        );
 
-            During(ProductStockReservationSuccess,
-                When(PaymentSuccessEvent)
-                .TransitionTo(PaymentSuccess)
-                .Send(new Uri($"queue:{Constants.RabbitMQ.Order_OrderCompletedEventQueue}"),
-                context => new OrderCompletedEvent
-                {
-                    OrderId = context.Saga.OrderId
-                })
+        During(StockReserved,
+            When(PaymentCompletedEvent)
+                .Then(context => { _logger.LogInformation($"CorrelationId {context.Saga.CorrelationId} - PaymentCompletedEvent received in OrderStateMachine: {context.Saga}"); })
+                .TransitionTo(PaymentCompleted)
+                .Publish(
+                    context => new OrderCompletedEvent
+                    {
+                        OrderId = context.Saga.OrderId,
+                        CustomerId = context.Saga.CustomerId
+                    })
+                .Then(context => { _logger.LogInformation($"CorrelationId {context.Saga.CorrelationId} - OrderCompletedEvent published in OrderStateMachine: {context.Saga}"); })
                 .Finalize(),
-                When(PaymentFailedEvent)
-                .TransitionTo(PaymentFailed)
-                .Send(new Uri($"queue:{Constants.RabbitMQ.Order_OrderFailedEventQueue}"),
-                context => new OrderFailedEvent
+            When(PaymentFailedEvent)
+                .Then(context => { _logger.LogInformation($"CorrelationId {context.Saga.CorrelationId} - PaymentFailedEvent received in OrderStateMachine: {context.Saga}"); })
+                .Publish(context => new OrderFailedEvent
                 {
                     OrderId = context.Saga.OrderId,
-                    Message = context.Message.Message
+                    CustomerId = context.Saga.CustomerId,
+                    ErrorMessage = context.Message.ErrorMessage
                 })
-                .Send(new Uri($"queue:{Constants.RabbitMQ.Product_RollbackMessageQueue}"),
-                context => new StockRollback
-                {
-                    OrderItems = context.Message.OrderItems
-                }));
-
-            SetCompletedWhenFinalized();
-        }
-
-
+                .Then(context => { _logger.LogInformation($"CorrelationId {context.Saga.CorrelationId} - OrderFailedEvent published in OrderStateMachine: {context.Saga}"); })
+                .Send(new Uri($"queue:{EventBusConstants.Queues.StockRollBackMessageQueueName}"),
+                    context => new StockRollbackMessage
+                    {
+                        OrderItemList = context.Message.OrderItemList
+                    })
+                .Then(context => { _logger.LogInformation($"CorrelationId {context.Saga.CorrelationId} - StockRollbackMessage sent in OrderStateMachine: {context.Saga}"); })
+                .TransitionTo(PaymentFailed)
+        );
     }
 }

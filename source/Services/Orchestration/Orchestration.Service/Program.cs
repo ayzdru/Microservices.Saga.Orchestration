@@ -57,7 +57,6 @@ builder.Services.AddDbContext<OrchestrationDbContext>(x =>
         options.MinBatchSize(1);
     });
 });
-builder.Services.AddScoped<IOrderValidationService, OrderValidationService>();
 
 builder.AddInfrastructure().AddWeb();
 var rabbitMqSettings = builder.Configuration.GetSection("RabbitMQ").Get<RabbitMQSettings>();
@@ -83,7 +82,7 @@ builder.Services.AddMassTransit(x =>
     x.SetKebabCaseEndpointNameFormatter();
 
 
-    x.AddSagaStateMachine<OrderStateMachine, OrderStateMachineInstance, OrderStateDefinition>()
+    x.AddSagaStateMachine<OrderStateMachine, OrderStateInstance>()
         .EntityFrameworkRepository(r =>
         {
             r.ExistingDbContext<OrchestrationDbContext>();

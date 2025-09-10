@@ -1,4 +1,6 @@
-﻿using FluentValidation;
+﻿using BuildingBlocks.MassTransit.Interfaces;
+using BuildingBlocks.MassTransit.Services;
+using FluentValidation;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -42,6 +44,7 @@ namespace Orchestration.Infrastructure.IoC
                 options.AddInterceptors(sp.GetServices<ISaveChangesInterceptor>());
                 options.UseNpgsql(builder.Configuration.GetConnectionString("OrchestrationDbConnection"));
             });
+            builder.Services.AddScoped<IMassTransitService, MassTransitService>();
             builder.Services.AddScoped<IApplicationDbContext, OrchestrationDbContext>();
             builder.Services.AddScoped<OrchestrationDbContextInitializer>();
             builder.Services.AddApplication();
