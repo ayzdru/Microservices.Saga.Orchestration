@@ -114,7 +114,12 @@ namespace Product.API
                     return Results.Ok(result);
                 })
     .RequireAuthorization();
-
+                app.MapPost("/api/products/get-products-by-ids", async (IMediator mediator, List<Guid> productIds) =>
+                {
+                    var result = await mediator.Send(new GetProductsByIdsQuery(productIds));
+                    return Results.Ok(result);
+                })
+.RequireAuthorization();
                 app.MapGet("/api/products/{id}", async (IMediator mediator, Guid id) =>
                 {
                     var result = await mediator.Send(new GetProductByIdQuery(id));

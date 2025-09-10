@@ -93,6 +93,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BuildingBlocks.Application"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BuildingBlocks.Infrastructure", "source\BuildingBlocks\BuildingBlocks.Infrastructure\BuildingBlocks.Infrastructure.csproj", "{A11679F6-3351-423A-B367-D0DA2EA37A85}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BuildingBlocks.Web", "source\BuildingBlocks\BuildingBlocks.Web\BuildingBlocks.Web.csproj", "{CAD98648-19C6-40FA-8DE6-01A3E4065253}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -223,6 +225,10 @@ Global
 		{A11679F6-3351-423A-B367-D0DA2EA37A85}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A11679F6-3351-423A-B367-D0DA2EA37A85}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A11679F6-3351-423A-B367-D0DA2EA37A85}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CAD98648-19C6-40FA-8DE6-01A3E4065253}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CAD98648-19C6-40FA-8DE6-01A3E4065253}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CAD98648-19C6-40FA-8DE6-01A3E4065253}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CAD98648-19C6-40FA-8DE6-01A3E4065253}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -271,6 +277,7 @@ Global
 		{66EB6A98-B9A6-4658-9B05-0D45418BC8AD} = {C6B9CA6E-586B-4BED-9CF0-B5AF69D49664}
 		{8E97C78F-74A2-407F-B550-C36D865A6E9F} = {C6B9CA6E-586B-4BED-9CF0-B5AF69D49664}
 		{A11679F6-3351-423A-B367-D0DA2EA37A85} = {C6B9CA6E-586B-4BED-9CF0-B5AF69D49664}
+		{CAD98648-19C6-40FA-8DE6-01A3E4065253} = {C6B9CA6E-586B-4BED-9CF0-B5AF69D49664}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {58D7D618-54DB-4C5C-A5D2-10FC55BE1315}

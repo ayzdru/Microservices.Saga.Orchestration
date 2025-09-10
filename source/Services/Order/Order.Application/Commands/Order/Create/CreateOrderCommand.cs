@@ -1,7 +1,6 @@
 ﻿using BuildingBlocks.Core.Models;
 using BuildingBlocks.EventBus.Interfaces.Order;
 using BuildingBlocks.EventBus.Messages.Order;
-using BuildingBlocks.EventBus.Models.Order;
 using BuildingBlocks.MassTransit.Interfaces;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -16,7 +15,11 @@ using System.Threading.Tasks;
 
 namespace Order.Application.Commands.Order.Create
 {
-  
+    public record OrderItem
+    {
+        public Guid ProductId { get; set; }
+        public int Count { get; set; }
+    }
     public record CreateOrderCommand : IRequest<ApiResult<string>>
     {
         public Guid UserId { get; set; }
@@ -48,6 +51,8 @@ namespace Order.Application.Commands.Order.Create
                 TotalPrice = newOrder.OrderItems.Sum(x => x.Price * x.Count),
                 OrderItems = newOrder.OrderItems.Select(item => new OrderItem
                 {
+
+                    Price = item.Price,
                     Count = item.Count,
                     ProductId = item.ProductId
                 }).ToList()

@@ -1,6 +1,7 @@
 using BlazorWebAppOidc;
 using BlazorWebAppOidc.Client;
 using BlazorWebAppOidc.Components;
+using BuildingBlocks.Web;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Mvc;

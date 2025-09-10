@@ -21,7 +21,17 @@ namespace Product.Application.Commands
                 .NotNull()
                 .WithMessage("OrderItems cannot be null.")
                 .Must(items => items != null && items.Count > 0)
-                .WithMessage("Order must contain at least one OrderItem.");
+                .WithMessage("Order must contain at least one OrderItem.")
+                .Must(items => items.Select(i => i.ProductId).Distinct().Count() == items.Count)
+                .WithMessage("Each ProductId in OrderItems must be unique.");
+
+            RuleForEach(x => x.OrderItems)
+                .ChildRules(orderItem =>
+                {
+                    orderItem.RuleFor(i => i.Count)
+                        .GreaterThan(1)
+                        .WithMessage("OrderItem Count must be greater than 1.");
+                });
         }
     }
 }

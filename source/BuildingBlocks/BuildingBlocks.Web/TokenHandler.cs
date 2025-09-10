@@ -1,7 +1,8 @@
 ﻿using System.Net.Http.Headers;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Http;
 
-namespace BlazorWebAppOidc;
+namespace BuildingBlocks.Web;
 
 public class TokenHandler(IHttpContextAccessor httpContextAccessor) : 
     DelegatingHandler
