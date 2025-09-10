@@ -1,10 +1,12 @@
 
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Order.Infrastructure.Data;
+
 namespace Order.API
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
             // appsettings.json'dan ayarlarý çekiyoruz
@@ -33,7 +35,12 @@ namespace Order.API
             builder.Services.AddOpenApi();
 
             var app = builder.Build();
-
+            using (var scope = app.Services.CreateScope())
+            {
+                var initializer = scope.ServiceProvider.GetRequiredService<OrderDbContextInitializer>();
+                await initializer.InitialiseAsync();
+                await initializer.SeedAsync();
+            }
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {

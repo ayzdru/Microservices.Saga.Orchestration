@@ -7,7 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Data\Configurations\" />
     <Folder Include="Data\Interceptors\" />
     <Folder Include="Data\Migrations\" />
     <Folder Include="Extensions\" />
@@ -17,7 +16,6 @@
 	<ItemGroup>
 		<ProjectReference Include="..\..\..\BuildingBlocks\BuildingBlocks.EventBus\BuildingBlocks.EventBus.csproj" />
 		<ProjectReference Include="..\..\..\BuildingBlocks\BuildingBlocks.Infrastructure\BuildingBlocks.Infrastructure.csproj" />
-		<ProjectReference Include="..\..\..\BuildingBlocks\BuildingBlocks.MassTransit\BuildingBlocks.MassTransit.csproj" />
 		<ProjectReference Include="..\Order.Application\Order.Application.csproj" />
 	</ItemGroup>
 </Project>

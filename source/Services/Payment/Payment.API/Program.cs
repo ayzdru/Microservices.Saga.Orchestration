@@ -1,11 +1,12 @@
 
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Payment.Infrastructure.Data;
 
 namespace Payment.API
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
             // appsettings.json'dan ayarlarý çekiyoruz
@@ -34,7 +35,12 @@ namespace Payment.API
             builder.Services.AddOpenApi();
 
             var app = builder.Build();
-
+            using (var scope = app.Services.CreateScope())
+            {
+                var initializer = scope.ServiceProvider.GetRequiredService<PaymentDbContextInitializer>();
+                await initializer.InitialiseAsync();
+                await initializer.SeedAsync();
+            }
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {

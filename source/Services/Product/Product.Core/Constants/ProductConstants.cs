@@ -8,7 +8,6 @@ public partial class Constants
     {
         public const int NameMaximumLength = 500;
         public const int NameMinimumLength = 3;
-
         public const bool NameRequired = true;
     }
 }

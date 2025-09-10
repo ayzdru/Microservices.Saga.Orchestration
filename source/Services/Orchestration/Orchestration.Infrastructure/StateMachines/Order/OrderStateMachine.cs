@@ -1,7 +1,9 @@
-﻿using EventBus.Events;
-using EventBus.Events.Interfaces;
-using EventBus.Messages;
-using EventBus.Messages.Interfaces;
+﻿using BuildingBlocks.EventBus.Events.Order;
+using BuildingBlocks.EventBus.Interfaces.Order;
+using BuildingBlocks.EventBus.Interfaces.Payment;
+using BuildingBlocks.EventBus.Interfaces.Product;
+using BuildingBlocks.EventBus.Messages.Payment;
+using BuildingBlocks.EventBus.Messages.Product;
 using MassTransit;
 using Microsoft.Extensions.Logging;
 
@@ -33,7 +35,7 @@ public class OrderStateMachine : MassTransitStateMachine<OrderStateInstance>
         _logger = logger; 
         InstanceState(x => x.CurrentState);
 
-        Event(() => CreateOrderMessage, y => y.CorrelateBy<int>(x => x.OrderId, z => z.Message.OrderId)
+        Event(() => CreateOrderMessage, y => y.CorrelateBy<Guid>(x => x.OrderId, z => z.Message.OrderId)
             .SelectId(context => Guid.NewGuid()));
         Event(() => StockReservedEvent, x => x.CorrelateById(y => y.Message.CorrelationId));
         Event(() => StockReservationFailedEvent, x => x.CorrelateById(y => y.Message.CorrelationId));
@@ -44,17 +46,16 @@ public class OrderStateMachine : MassTransitStateMachine<OrderStateInstance>
                 .Then(context => { _logger.LogInformation($"CorrelationId {context.Saga.CorrelationId} - CreateOrderMessage received in OrderStateMachine: {context.Saga}"); })
                 .Then(context =>
                 {
-                    context.Saga.CustomerId = context.Message.CustomerId;
+                    context.Saga.UserId = context.Message.UserId;
                     context.Saga.OrderId = context.Message.OrderId;
                     context.Saga.CreatedDate = DateTime.UtcNow;
-                    context.Saga.PaymentAccountId = context.Message.PaymentAccountId;
                     context.Saga.TotalPrice = context.Message.TotalPrice;
                 })
                 .Publish(
                     context => new OrderCreatedEvent
                     {
                         CorrelationId = context.Saga.CorrelationId,
-                        OrderItemList = context.Message.OrderItemList
+                        OrderItems = context.Message.OrderItems
                     })
                 .TransitionTo(OrderCreated)
                 .Then(context => { _logger.LogInformation($"CorrelationId {context.Saga.CorrelationId} - OrderCreatedEvent published in OrderStateMachine: {context.Saga}"); }));
@@ -64,12 +65,12 @@ public class OrderStateMachine : MassTransitStateMachine<OrderStateInstance>
                 .Then(context => { _logger.LogInformation($"CorrelationId {context.Saga.CorrelationId} - StockReservedEvent received in OrderStateMachine: {context.Saga}"); })
                 .TransitionTo(StockReserved)
                 .Send(new Uri($"queue:{EventBusConstants.Queues.CompletePaymentMessageQueueName}"),
-                    context => new CompletePaymentMessage 
+                    context => new PaymentCompleteMessage
                     {
                         CorrelationId = context.Saga.CorrelationId,
                         TotalPrice = context.Saga.TotalPrice,
-                        CustomerId = context.Saga.CustomerId,
-                        OrderItemList = context.Message.OrderItemList
+                        UserId = context.Saga.UserId,
+                        OrderItems = context.Message.OrderItems
                     })
                 .Then(context => { _logger.LogInformation($"CorrelationId {context.Saga.CorrelationId} - CompletePaymentMessage sent in OrderStateMachine: {context.Saga}"); }),
             When(StockReservationFailedEvent)
@@ -79,7 +80,7 @@ public class OrderStateMachine : MassTransitStateMachine<OrderStateInstance>
                     context => new OrderFailedEvent
                     {
                         OrderId = context.Saga.OrderId,
-                        CustomerId = context.Saga.CustomerId,
+                        UserId = context.Saga.UserId,
                         ErrorMessage = context.Message.ErrorMessage
                     })
                 .Then(context => { _logger.LogInformation($"CorrelationId {context.Saga.CorrelationId} - OrderFailedEvent published in OrderStateMachine: {context.Saga}"); })
@@ -93,7 +94,7 @@ public class OrderStateMachine : MassTransitStateMachine<OrderStateInstance>
                     context => new OrderCompletedEvent
                     {
                         OrderId = context.Saga.OrderId,
-                        CustomerId = context.Saga.CustomerId
+                        UserId = context.Saga.UserId
                     })
                 .Then(context => { _logger.LogInformation($"CorrelationId {context.Saga.CorrelationId} - OrderCompletedEvent published in OrderStateMachine: {context.Saga}"); })
                 .Finalize(),
@@ -102,14 +103,14 @@ public class OrderStateMachine : MassTransitStateMachine<OrderStateInstance>
                 .Publish(context => new OrderFailedEvent
                 {
                     OrderId = context.Saga.OrderId,
-                    CustomerId = context.Saga.CustomerId,
+                    UserId = context.Saga.UserId,
                     ErrorMessage = context.Message.ErrorMessage
                 })
                 .Then(context => { _logger.LogInformation($"CorrelationId {context.Saga.CorrelationId} - OrderFailedEvent published in OrderStateMachine: {context.Saga}"); })
                 .Send(new Uri($"queue:{EventBusConstants.Queues.StockRollBackMessageQueueName}"),
                     context => new StockRollbackMessage
                     {
-                        OrderItemList = context.Message.OrderItemList
+                        OrderItems = context.Message.OrderItems
                     })
                 .Then(context => { _logger.LogInformation($"CorrelationId {context.Saga.CorrelationId} - StockRollbackMessage sent in OrderStateMachine: {context.Saga}"); })
                 .TransitionTo(PaymentFailed)

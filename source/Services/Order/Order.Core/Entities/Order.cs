@@ -4,16 +4,27 @@ using Order.Core.Enums;
 namespace Order.Core.Entities;
 
 public class Order : BaseEntity
-{
-    public Order()
+{    
+    public Guid UserId { get; private set; }
+    public OrderStatus Status { get; private set; }
+    public string ErrorMessage { get; private set; }
+    private readonly List<OrderItem> _orderItems = new List<OrderItem>();
+    public IReadOnlyCollection<OrderItem> OrderItems => _orderItems.AsReadOnly();
+    public Order(Guid userId, OrderStatus status, string errorMessage)
     {
-        OrderItemList = new List<OrderItem>();
+        UserId = userId;
+        Status = status;
+        ErrorMessage = errorMessage;
     }
-    public int Id { get; set; }
-    public string CustomerId { get; set; }
-    public string PaymentAccountId { get; set; }
-    public OrderStatus Status { get; set; }
-    public string ErrorMessage { get; set; }
-    
-    public virtual List<OrderItem> OrderItemList { get; set; } 
+    public Order(Guid userId, OrderStatus status, List<OrderItem> orderItems)
+    {
+        UserId = userId;
+        Status = status;
+        _orderItems = orderItems;
+    }
+    public void ChangeStatus(OrderStatus newStatus, string? errorMessage = null)
+    {
+        Status = newStatus;
+        ErrorMessage = errorMessage ?? string.Empty;
+    }
 }

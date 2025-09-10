@@ -1,4 +1,4 @@
-﻿using EventBus.Events.Interfaces;
+﻿using BuildingBlocks.EventBus.Interfaces.Order;
 using MassTransit;
 using Microsoft.Extensions.Logging;
 using Order.Core.Enums;
@@ -24,7 +24,7 @@ public class OrderCompletedEventConsumer : IConsumer<IOrderCompletedEvent>
 
         if (order != null)
         {
-            order.Status = OrderStatus.Complete;
+            order.ChangeStatus(OrderStatus.Complete);
             await _context.SaveChangesAsync();
 
             _logger.LogInformation("Order with Id: {MessageOrderId} completed successfully", context.Message.OrderId);

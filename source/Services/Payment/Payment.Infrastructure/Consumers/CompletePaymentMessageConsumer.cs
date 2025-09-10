@@ -1,12 +1,13 @@
 ﻿
-using EventBus.Events;
-using EventBus.Messages.Interfaces;
+using BuildingBlocks.EventBus.Events.Payment;
+using BuildingBlocks.EventBus.Interfaces.Payment;
+using BuildingBlocks.EventBus.Messages.Payment;
 using MassTransit;
 using Microsoft.Extensions.Logging;
 
 namespace Payment.Infrastructure.Consumers;
 
-public class CompletePaymentMessageConsumer : IConsumer<ICompletePaymentMessage>
+public class CompletePaymentMessageConsumer : IConsumer<IPaymentCompleteMessage>
 {
     private readonly ILogger<CompletePaymentMessageConsumer> _logger;
 
@@ -18,15 +19,15 @@ public class CompletePaymentMessageConsumer : IConsumer<ICompletePaymentMessage>
         _publishEndpoint = publishEndpoint;
     }
 
-    public async Task Consume(ConsumeContext<ICompletePaymentMessage> context)
+    public async Task Consume(ConsumeContext<IPaymentCompleteMessage> context)
     {
         // todo payment from stripe service
         var paymentSuccess = DateTime.UtcNow.Second % 2 == 0;
 
         // if (paymentSuccess)
         // {
-            _logger.LogInformation("Payment successfull. {MessageTotalPrice}$ was withdrawn from user with Id= {MessageCustomerId} and correlation Id={MessageCorrelationId}",
-                context.Message.TotalPrice, context.Message.CustomerId, context.Message.CorrelationId);
+            _logger.LogInformation("Payment successfull. {MessageTotalPrice}$ was withdrawn from user with UserId= {MessageUserId} and correlation Id={MessageCorrelationId}",
+                context.Message.TotalPrice, context.Message.UserId, context.Message.CorrelationId);
 
             await _publishEndpoint.Publish(new PaymentCompletedEvent
             {

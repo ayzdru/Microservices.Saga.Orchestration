@@ -12,6 +12,7 @@
 	</ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\BuildingBlocks.Core\BuildingBlocks.Core.csproj" />
+    <ProjectReference Include="..\BuildingBlocks.EventBus\BuildingBlocks.EventBus.csproj" />
   </ItemGroup>
 
 </Project>

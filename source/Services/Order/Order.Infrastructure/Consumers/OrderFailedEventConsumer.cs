@@ -1,4 +1,4 @@
-﻿using EventBus.Events.Interfaces;
+﻿using BuildingBlocks.EventBus.Interfaces.Order;
 using MassTransit;
 using Microsoft.Extensions.Logging;
 using Order.Core.Enums;
@@ -24,9 +24,7 @@ public class OrderFailedEventConsumer : IConsumer<IOrderFailedEvent>
 
         if (order != null)
         {
-            order.Status = OrderStatus.Fail;
-            order.ErrorMessage = context.Message.ErrorMessage;
-            
+            order.ChangeStatus(OrderStatus.Fail, context.Message.ErrorMessage);     
             await _context.SaveChangesAsync();
 
             _logger.LogInformation("Order with Id: {MessageOrderId} failed, status updated to {Status}", context.Message.OrderId, OrderStatus.Fail);

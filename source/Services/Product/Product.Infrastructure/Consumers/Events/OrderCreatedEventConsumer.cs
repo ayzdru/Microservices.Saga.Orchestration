@@ -1,6 +1,6 @@
-﻿using BuildingBlocks.MassTransit.Interfaces;
-using EventBus.Events;
-using EventBus.Events.Interfaces;
+﻿using BuildingBlocks.EventBus.Events.Product;
+using BuildingBlocks.EventBus.Interfaces.Order;
+using BuildingBlocks.MassTransit.Interfaces;
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -24,9 +24,9 @@ public class OrderCreatedEventConsumer : IConsumer<IOrderCreatedEvent>
     public async Task Consume(ConsumeContext<IOrderCreatedEvent> context)
     {
         var isThereEnoughStock = true;
-        foreach (var item in _context.Products.Where(x => context.Message.OrderItemList.Select(y => y.ProductId).Contains(x.Id)).AsEnumerable())
+        foreach (var item in _context.Products.Where(x => context.Message.OrderItems.Select(y => y.ProductId).Contains(x.Id)).AsEnumerable())
         {
-            if (!context.Message.OrderItemList.Select(y => y.ProductId).Contains(item.Id) || item.Stock <= context.Message.OrderItemList.FirstOrDefault(y => y.ProductId == item.Id).Count)
+            if (!context.Message.OrderItems.Select(y => y.ProductId).Contains(item.Id) || item.Stock <= context.Message.OrderItems.FirstOrDefault(y => y.ProductId == item.Id).Count)
             {
                 isThereEnoughStock = false;
                 break;
@@ -45,7 +45,7 @@ public class OrderCreatedEventConsumer : IConsumer<IOrderCreatedEvent>
         }
         else
         {
-            foreach (var item in context.Message.OrderItemList)
+            foreach (var item in context.Message.OrderItems)
             {
                 var stock = await _context.Products.FirstOrDefaultAsync(x => x.Id == item.ProductId);
 
@@ -70,7 +70,7 @@ public class OrderCreatedEventConsumer : IConsumer<IOrderCreatedEvent>
             StockReservedEvent stockReservedEvent = new StockReservedEvent
             {
                 CorrelationId = context.Message.CorrelationId,
-                OrderItemList = context.Message.OrderItemList
+                OrderItems = context.Message.OrderItems
             };
 
             await _massTransitService.Publish(stockReservedEvent);

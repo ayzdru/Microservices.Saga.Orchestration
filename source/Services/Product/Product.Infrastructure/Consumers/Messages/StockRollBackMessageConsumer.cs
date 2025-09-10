@@ -1,4 +1,4 @@
-﻿using EventBus.Messages.Interfaces;
+﻿using BuildingBlocks.EventBus.Interfaces.Product;
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -19,7 +19,7 @@ public class StockRollBackMessageConsumer : IConsumer<IStockRollBackMessage>
 
     public async Task Consume(ConsumeContext<IStockRollBackMessage> context)
     {
-        foreach (var item in context.Message.OrderItemList)
+        foreach (var item in context.Message.OrderItems)
         {
             var stock = await _context.Products.FirstOrDefaultAsync(x => x.Id == item.ProductId);
 

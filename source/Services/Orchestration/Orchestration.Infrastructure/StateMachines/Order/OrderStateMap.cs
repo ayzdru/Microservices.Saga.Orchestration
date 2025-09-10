@@ -10,7 +10,7 @@ public class OrderStateMap: SagaClassMap<OrderStateInstance>
     {
         entity.Property(x => x.CurrentState);
 
-        entity.Property(x => x.PaymentAccountId)
+        entity.Property(x => x.UserId)
                .IsRequired();
 
         entity.Property(x => x.OrderId)
