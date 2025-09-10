@@ -49,37 +49,7 @@ builder.Services.AddLogging(config =>
 
 
 builder.AddInfrastructure().AddWeb();
-var rabbitMqSettings = builder.Configuration.GetSection("RabbitMQ").Get<RabbitMQSettings>();
-builder.Services.AddMassTransit((Action<IBusRegistrationConfigurator>)(x =>
-{
-    x.UsingRabbitMq((context, cfg) =>
-    {
-        cfg.Host(rabbitMqSettings.Host, rabbitMqSettings.Port, rabbitMqSettings.VirtualHost, h =>
-        {
-            h.Username(rabbitMqSettings.Username);
-            h.Password(rabbitMqSettings.Password);
-        });
 
-        cfg.ConfigureEndpoints(context);
-    });
-    EntityFrameworkOutboxConfigurationExtensions.AddEntityFrameworkOutbox<OrchestrationDbContext>(x, (Action<IEntityFrameworkOutboxConfigurator>?)(o =>
-    {
-        o.UsePostgres();
-
-        o.DuplicateDetectionWindow = TimeSpan.FromSeconds(30);
-    }));
-
-    x.SetKebabCaseEndpointNameFormatter();
-
-
-    x.AddSagaStateMachine<OrderStateMachine, OrderStateInstance, OrderStateDefinition>()
-        .EntityFrameworkRepository((Action<IEntityFrameworkSagaRepositoryConfigurator<OrderStateInstance>>)(r =>
-        {
-            r.ExistingDbContext<OrchestrationDbContext>();
-            r.UsePostgres();
-        }));
-    
-}));
 using IHost host = builder.Build();
 using (var scope = host.Services.CreateScope())
 {

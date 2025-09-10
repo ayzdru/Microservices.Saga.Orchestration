@@ -1,12 +1,7 @@
 ﻿using Order.Application;
 using Order.Application.Interfaces;
 using Order.Infrastructure.Data;
-using Order.Infrastructure.Services;
-using FluentValidation;
-using MediatR;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;

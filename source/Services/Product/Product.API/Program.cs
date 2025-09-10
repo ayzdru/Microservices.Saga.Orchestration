@@ -1,4 +1,5 @@
 
+using BuildingBlocks.Core.Entities;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Hosting;
@@ -32,7 +33,9 @@ namespace Product.API
                     options.AddInterceptors(sp.GetServices<ISaveChangesInterceptor>());                    
                     options.UseNpgsql(builder.Configuration.GetConnectionString("ProductDbConnection"));
                 });
-                builder.Services.AddScoped<IApplicationDbContext>(provider => provider.GetService<ProductDbContext>());
+                builder.Services.AddIdentity<User, Role>()
+            .AddEntityFrameworkStores<ProductDbContext>();
+                builder.Services.AddScoped<IApplicationDbContext>(provider => provider.GetRequiredService<ProductDbContext>());
                 builder.Services.AddScoped<ProductDbContextInitializer>();
                 builder.Services.AddHostedService<MigrationService>();
 

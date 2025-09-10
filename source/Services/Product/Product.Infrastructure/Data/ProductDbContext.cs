@@ -1,5 +1,4 @@
 ﻿using BuildingBlocks.Core.Entities;
-using BuildingBlocks.Infrastructure.Data.Configurations;
 using MediatR;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -18,7 +17,7 @@ namespace Product.Infrastructure.Data
     public class ProductDbContext : IdentityDbContext<User, Role, Guid, UserClaim, UserRole, UserLogin, RoleClaim, UserToken>, IApplicationDbContext
     {
         public DbSet<Product.Core.Entities.Product> Products { get; set; }
-        public DbSet<User> Users { get; set; }
+       
         public ProductDbContext(DbContextOptions<ProductDbContext> options)
              : base(options)
         {
@@ -27,10 +26,19 @@ namespace Product.Infrastructure.Data
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
-            builder.ApplyConfigurationsFromAssembly(typeof(UserConfiguration).Assembly);
             builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
             base.OnModelCreating(builder);
-        }     
-
+            ConfigureIdentity(builder);
+        }
+        private void ConfigureIdentity(ModelBuilder builder)
+        {
+            builder.Entity<Role>().ToTable(nameof(Roles));
+            builder.Entity<RoleClaim>().ToTable(nameof(RoleClaims));
+            builder.Entity<UserRole>().ToTable(nameof(UserRoles));
+            builder.Entity<User>().ToTable(nameof(Users));
+            builder.Entity<UserLogin>().ToTable(nameof(UserLogins));
+            builder.Entity<UserClaim>().ToTable(nameof(UserClaims));
+            builder.Entity<UserToken>().ToTable(nameof(UserTokens));
+        }
     }
 }

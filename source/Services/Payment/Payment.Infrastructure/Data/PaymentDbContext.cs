@@ -1,5 +1,4 @@
 ﻿using BuildingBlocks.Core.Entities;
-using BuildingBlocks.Infrastructure.Data.Configurations;
 using MediatR;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -25,7 +24,6 @@ namespace Payment.Infrastructure.Data
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
-            builder.ApplyConfigurationsFromAssembly(typeof(UserConfiguration).Assembly);
             builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
             base.OnModelCreating(builder);
         }     

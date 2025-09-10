@@ -1,5 +1,4 @@
 ﻿using BuildingBlocks.Core.Entities;
-using BuildingBlocks.Infrastructure.Data.Configurations;
 using MassTransit;
 using MassTransit.EntityFrameworkCoreIntegration;
 using MediatR;

@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Order.Infrastructure.Services
+namespace BuildingBlocks.Infrastructure.Services
 {
     public class EmailService : IEmailSender
     {
