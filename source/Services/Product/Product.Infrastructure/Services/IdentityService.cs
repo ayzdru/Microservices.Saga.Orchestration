@@ -1,11 +1,10 @@
-﻿using Product.Infrastructure.Extensions;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Product.Core.Interfaces;
+using BuildingBlocks.Core.Interfaces;
 
 namespace Product.Infrastructure.Services;
 

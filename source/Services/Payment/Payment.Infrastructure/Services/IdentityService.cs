@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Payment.Core.Interfaces;
+using BuildingBlocks.Core.Interfaces;
 
 namespace Payment.Infrastructure.Services;
 

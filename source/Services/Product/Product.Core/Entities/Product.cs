@@ -1,4 +1,4 @@
-﻿using Product.Core.Common;
+﻿using BuildingBlocks.Core.Common;
 using System;
 using System.Collections.Generic;
 using System.Linq;

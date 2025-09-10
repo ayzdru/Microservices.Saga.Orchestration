@@ -1,5 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
-using Product.Core.Interfaces;
+﻿using BuildingBlocks.Core.Interfaces;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;

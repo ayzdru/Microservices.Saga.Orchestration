@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Product.Application.Interfaces;
 using Product.Application.Notifications;
-using Product.Core.Exceptions;
+using BuildingBlocks.Core.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.Linq;

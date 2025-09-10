@@ -1,6 +1,6 @@
 ﻿using MediatR;
 using Product.Application.Notifications;
-using Product.Core;
+using BuildingBlocks.Core;
 using System;
 using System.Collections.Generic;
 using System.Linq;

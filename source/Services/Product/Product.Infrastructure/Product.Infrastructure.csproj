@@ -9,17 +9,11 @@
   <ItemGroup>
     <Folder Include="Data\Migrations\" />
   </ItemGroup>
-	<ItemGroup>
-		<PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="9.0.8" />
-		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.4" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.8">
-			<PrivateAssets>all</PrivateAssets>
-			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-		</PackageReference>
-	</ItemGroup>
+	
 
 	<ItemGroup>
 		<ProjectReference Include="..\..\..\BuildingBlocks\BuildingBlocks.EventBus\BuildingBlocks.EventBus.csproj" />
+		<ProjectReference Include="..\..\..\BuildingBlocks\BuildingBlocks.Infrastructure\BuildingBlocks.Infrastructure.csproj" />
 		<ProjectReference Include="..\..\..\BuildingBlocks\BuildingBlocks.MassTransit\BuildingBlocks.MassTransit.csproj" />
 		<ProjectReference Include="..\Product.Application\Product.Application.csproj" />
 	</ItemGroup>

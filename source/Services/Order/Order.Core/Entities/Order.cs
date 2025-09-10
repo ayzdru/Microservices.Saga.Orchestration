@@ -1,6 +1,4 @@
-﻿
-using Order.Core.Common;
-using Order.Core.Entities;
+﻿using BuildingBlocks.Core.Common;
 using Order.Core.Enums;
 
 namespace Order.Core.Entities;

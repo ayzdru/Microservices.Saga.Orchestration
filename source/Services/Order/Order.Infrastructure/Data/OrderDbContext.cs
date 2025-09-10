@@ -1,11 +1,8 @@
-﻿using Order.Application.Interfaces;
-using Order.Core;
-using Order.Core.Entities;
-using Order.Infrastructure.Extensions;
-using Order.Infrastructure.Interceptors;
+﻿using BuildingBlocks.Infrastructure.Data.Configurations;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Order.Application.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -27,6 +24,7 @@ namespace Order.Infrastructure.Data
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
+            builder.ApplyConfigurationsFromAssembly(typeof(UserConfiguration).Assembly);
             builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
             base.OnModelCreating(builder);
         }     

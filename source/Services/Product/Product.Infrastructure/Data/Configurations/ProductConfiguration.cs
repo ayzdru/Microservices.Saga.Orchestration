@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Product.Infrastructure.Common;
+using BuildingBlocks.Infrastructure.Common;
 using System;
 using System.Collections.Generic;
 using System.Text;

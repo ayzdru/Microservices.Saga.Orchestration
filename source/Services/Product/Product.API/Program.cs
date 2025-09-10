@@ -10,8 +10,8 @@ using Product.API.Transformers;
 using Product.Application.Commands;
 using Product.Application.Interfaces;
 using Product.Application.Queries;
+using Product.Infrastructure;
 using Product.Infrastructure.Data;
-using Product.Infrastructure.IoC;
 using Product.Web.IoC;
 
 namespace Product.API

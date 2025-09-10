@@ -1,11 +1,9 @@
-﻿using Product.Application.Interfaces;
-using Product.Core;
-using Product.Core.Entities;
-using Product.Infrastructure.Extensions;
-using Product.Infrastructure.Interceptors;
+﻿using BuildingBlocks.Core.Entities;
+using BuildingBlocks.Infrastructure.Data.Configurations;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Product.Application.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -28,6 +26,7 @@ namespace Product.Infrastructure.Data
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
+            builder.ApplyConfigurationsFromAssembly(typeof(UserConfiguration).Assembly);
             builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
             base.OnModelCreating(builder);
         }     

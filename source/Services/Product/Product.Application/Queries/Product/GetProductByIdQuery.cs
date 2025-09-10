@@ -1,8 +1,8 @@
 ﻿using MediatR;
 using Microsoft.EntityFrameworkCore;
-using Product.Application.Extensions;
+using BuildingBlocks.Application.Extensions;
 using Product.Application.Interfaces;
-using Product.Core.Exceptions;
+using BuildingBlocks.Core.Exceptions;
 using System;
 using System.Collections;
 using System.Collections.Generic;

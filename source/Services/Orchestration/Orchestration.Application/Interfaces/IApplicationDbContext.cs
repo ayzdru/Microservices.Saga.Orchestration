@@ -1,4 +1,4 @@
-﻿using Orchestration.Core.Entities;
+﻿using BuildingBlocks.Core.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using System.Threading;

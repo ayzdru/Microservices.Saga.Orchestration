@@ -1,11 +1,10 @@
-﻿using Order.Infrastructure.Extensions;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Order.Core.Interfaces;
+using BuildingBlocks.Core.Interfaces;
 
 namespace Order.Infrastructure.Services;
 

@@ -1,8 +1,6 @@
 ﻿
-using Product.Core.Interfaces;
-using Product.Infrastructure.Data;
-using Microsoft.Extensions.DependencyInjection;
 using Product.API.Services;
+using BuildingBlocks.Core.Interfaces;
 
 
 namespace Product.Web.IoC

@@ -1,5 +1,4 @@
-﻿using Order.Core.Interfaces;
-using Microsoft.AspNetCore.Identity.UI.Services;
+﻿using Microsoft.AspNetCore.Identity.UI.Services;
 using System;
 using System.Collections.Generic;
 using System.Text;

@@ -1,14 +1,12 @@
-﻿using MassTransit;
+﻿using BuildingBlocks.Core.Entities;
+using BuildingBlocks.Infrastructure.Data.Configurations;
+using MassTransit;
 using MassTransit.EntityFrameworkCoreIntegration;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Orchestration.Application.Interfaces;
-using Orchestration.Core;
-using Orchestration.Core.Entities;
-using Orchestration.Infrastructure.Extensions;
-using Orchestration.Infrastructure.Interceptors;
 using Orchestration.Infrastructure.StateMachines.Order;
 using System;
 using System.Collections.Generic;
@@ -35,6 +33,7 @@ namespace Orchestration.Infrastructure.Data
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
+            builder.ApplyConfigurationsFromAssembly(typeof(UserConfiguration).Assembly);
             builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
             base.OnModelCreating(builder);
             builder.AddInboxStateEntity();

@@ -1,4 +1,4 @@
-﻿using Product.Core;
+﻿using BuildingBlocks.Core;
 using MediatR;
 using System;
 using System.Collections.Generic;
