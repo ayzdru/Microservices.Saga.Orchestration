@@ -8,6 +8,6 @@ public partial class Constants
     {
         public const int ErrorMessageMaximumLength = 500;
         public const int ErrorMessageMinimumLength = 3;
-        public const bool ErrorMessageRequired = true;
+        public const bool ErrorMessageRequired = false;
     }
 }

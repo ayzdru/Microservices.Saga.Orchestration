@@ -6,6 +6,7 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Order.Application.Interfaces;
+using Order.Application.Services;
 using Order.Core.Enums;
 using System;
 using System.Collections.Generic;
@@ -31,15 +32,23 @@ namespace Order.Application.Commands.Order.Create
         private readonly IApplicationDbContext _applicationDbContext; 
         private readonly IMassTransitService _massTransitService;
         private readonly ILogger<CreateOrderCommandHandler> _logger;
-        public CreateOrderCommandHandler(IApplicationDbContext applicationDbContext, IMassTransitService massTransitService, ILogger<CreateOrderCommandHandler> logger)
+        private readonly ApiGatewayService _apiGatewayService;
+        public CreateOrderCommandHandler(IApplicationDbContext applicationDbContext, IMassTransitService massTransitService, ILogger<CreateOrderCommandHandler> logger, ApiGatewayService apiGatewayService)
         {
             _applicationDbContext = applicationDbContext;
             _massTransitService = massTransitService;
             _logger = logger;
+            _apiGatewayService = apiGatewayService;
         }
         public async Task<ApiResult<string>> Handle(CreateOrderCommand request, CancellationToken cancellationToken)
         {
-            var newOrder = new Core.Entities.Order(request.UserId, OrderStatus.Pending, request.OrderItems.Select(item => new Core.Entities.OrderItem(item.ProductId, 0 /* item.Price*/, item.Count)).ToList());
+            var productIds = request.OrderItems.Select(x => x.ProductId).ToList();
+            var products = await _apiGatewayService.GetProductsByIdsAsync(productIds, cancellationToken);
+            if(products==null || products.Count != request.OrderItems.Count)
+            {
+                return new ApiResult<string>(false, "Order creation failed due to missing product details.");
+            }
+            var newOrder = new Core.Entities.Order(request.UserId, OrderStatus.Pending, request.OrderItems.Select(item => new Core.Entities.OrderItem(item.ProductId, products.SingleOrDefault(p => p.Id == item.ProductId).Price, item.Count)).ToList());
            
             await _applicationDbContext.Orders.AddAsync(newOrder, cancellationToken);
             await _applicationDbContext.SaveChangesAsync(cancellationToken);

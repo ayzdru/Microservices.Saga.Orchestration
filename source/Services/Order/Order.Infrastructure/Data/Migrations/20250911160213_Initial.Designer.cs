@@ -12,7 +12,7 @@ using Order.Infrastructure.Data;
 namespace Order.Infrastructure.Data.Migrations
 {
     [DbContext(typeof(OrderDbContext))]
-    [Migration("20250910231944_Initial")]
+    [Migration("20250911160213_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -407,7 +407,6 @@ namespace Order.Infrastructure.Data.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("ErrorMessage")
-                        .IsRequired()
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");
 

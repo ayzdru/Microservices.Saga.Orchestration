@@ -43,8 +43,8 @@ namespace Orchestration.Infrastructure
                 options.AddInterceptors(sp.GetServices<ISaveChangesInterceptor>());
                 options.UseNpgsql(builder.Configuration.GetConnectionString("OrchestrationDbConnection"));
             });
-            builder.Services.AddIdentity<User, Role>()
-            .AddEntityFrameworkStores<OrchestrationDbContext>();
+            builder.Services.AddIdentityCore<User>().AddRoles<Role>().AddEntityFrameworkStores<OrchestrationDbContext>();
+
 
 
             builder.Services.AddDbContext<OrchestrationSagaDbContext>((sp, options) =>
@@ -65,15 +65,14 @@ namespace Orchestration.Infrastructure
                         h.Username(rabbitMqSettings.Username);
                         h.Password(rabbitMqSettings.Password);
                     });
-                    //cfg.ReceiveEndpoint(RabbitMQSettings.StateMachineQueue, e => e.ConfigureSaga<OrderStateInstance>(context));
-                    cfg.ConfigureEndpoints(context);
+                    cfg.ReceiveEndpoint(EventBusConstants.Queues.CreateOrderMessageQueueName, e => { e.ConfigureSaga<OrderStateInstance>(context); });
                 });
-                EntityFrameworkOutboxConfigurationExtensions.AddEntityFrameworkOutbox<OrchestrationDbContext>(x, (Action<IEntityFrameworkOutboxConfigurator>?)(o =>
-                {
-                    o.UsePostgres();
+                //EntityFrameworkOutboxConfigurationExtensions.AddEntityFrameworkOutbox<OrchestrationSagaDbContext>(x, (Action<IEntityFrameworkOutboxConfigurator>?)(o =>
+                //{
+                //    o.UsePostgres();
 
-                    o.DuplicateDetectionWindow = TimeSpan.FromSeconds(30);
-                }));
+                //    o.DuplicateDetectionWindow = TimeSpan.FromSeconds(30);
+                //}));
 
                 x.SetKebabCaseEndpointNameFormatter();
 
@@ -81,14 +80,16 @@ namespace Orchestration.Infrastructure
                 x.AddSagaStateMachine<OrderStateMachine, OrderStateInstance, OrderStateDefinition>()
                     .EntityFrameworkRepository((Action<IEntityFrameworkSagaRepositoryConfigurator<OrderStateInstance>>)(r =>
                     {
-                        r.ExistingDbContext<OrchestrationDbContext>();
+                        r.ExistingDbContext<OrchestrationSagaDbContext>();
                         r.UsePostgres();
+                        r.ConcurrencyMode = ConcurrencyMode.Optimistic;
                     }));
 
             }));
             builder.Services.AddScoped<IMassTransitService, MassTransitService>();
             builder.Services.AddScoped<IApplicationDbContext, OrchestrationDbContext>();
             builder.Services.AddScoped<OrchestrationDbContextInitializer>();
+            builder.Services.AddScoped<OrchestrationSagaDbContextInitializer>();
             builder.Services.AddApplication();
             return builder;
         }

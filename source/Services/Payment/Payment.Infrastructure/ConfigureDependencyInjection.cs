@@ -18,6 +18,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Payment.Application;
 using Payment.Application.Interfaces;
+using Payment.Infrastructure.Consumers;
 using Payment.Infrastructure.Data;
 using System;
 using System.Collections.Generic;
@@ -40,18 +41,19 @@ namespace Payment.Infrastructure
                 options.UseNpgsql(
                     builder.Configuration.GetConnectionString("PaymentDbConnection"));
             });
-            builder.Services.AddIdentity<User, Role>().AddEntityFrameworkStores<PaymentDbContext>();
+            builder.Services.AddIdentityCore<User>().AddRoles<Role>().AddEntityFrameworkStores<PaymentDbContext>();
             var rabbitMqSettings = builder.Configuration.GetSection("RabbitMQ").Get<RabbitMQSettings>();
 
             builder.Services.AddMassTransit(x =>
             {
-                x.AddEntityFrameworkOutbox<PaymentDbContext>(o =>
-                {
-                    o.QueryDelay = TimeSpan.FromSeconds(1);
+                x.AddConsumer<CompletePaymentMessageConsumer>();
+                //x.AddEntityFrameworkOutbox<PaymentDbContext>(o =>
+                //{
+                //    o.QueryDelay = TimeSpan.FromSeconds(1);
 
-                    o.UsePostgres();
-                    o.UseBusOutbox();
-                });
+                //    o.UsePostgres();
+                //    o.UseBusOutbox();
+                //});
 
                 x.UsingRabbitMq((context, cfg) =>
                 {
@@ -60,7 +62,11 @@ namespace Payment.Infrastructure
                         h.Username(rabbitMqSettings.Username);
                         h.Password(rabbitMqSettings.Password);
                     });
-                    cfg.AutoStart = true;
+                    cfg.AutoStart = true; 
+                    cfg.ReceiveEndpoint(EventBusConstants.Queues.CompletePaymentMessageQueueName, e =>
+                    {
+                        e.ConfigureConsumer<CompletePaymentMessageConsumer>(context);
+                    });
                 });
             });
             builder.Services.AddScoped<IMassTransitService, MassTransitService>();

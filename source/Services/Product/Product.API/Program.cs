@@ -2,12 +2,15 @@
 using BuildingBlocks.Core.Entities;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.OpenApi.Models;
 using Product.API.Services;
 using Product.API.Transformers;
+using Product.Application;
 using Product.Application.Commands;
 using Product.Application.Interfaces;
 using Product.Application.Queries;
@@ -61,11 +64,11 @@ namespace Product.API
                         };
                     });
 
-                builder.Services.AddAuthorizationBuilder();
+
                 builder.AddServiceDefaults();
                 builder.AddInfrastructure().AddWeb();
-                // Add services to the container.
-                builder.Services.AddAuthorization();
+                builder.Services.AddAuthorizationBuilder();
+              
 
                 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
                 builder.Services.AddOpenApi(options =>
@@ -83,12 +86,12 @@ namespace Product.API
                 });
 
                 var app = builder.Build(); 
-                using (var scope = app.Services.CreateScope())
-                {
-                    var initializer = scope.ServiceProvider.GetRequiredService<ProductDbContextInitializer>();
-                    await initializer.InitialiseAsync(CancellationToken.None);
-                    await initializer.SeedAsync(CancellationToken.None);
-                }
+                //using (var scope = app.Services.CreateScope())
+                //{
+                //    var initializer = scope.ServiceProvider.GetRequiredService<ProductDbContextInitializer>();
+                //    await initializer.InitialiseAsync(CancellationToken.None);
+                //    await initializer.SeedAsync(CancellationToken.None);
+                //}
                 // Configure the HTTP request pipeline.
                 if (app.Environment.IsDevelopment())
                 {
@@ -107,7 +110,7 @@ namespace Product.API
 
 
                 app.MapDefaultEndpoints();
-                app.MapGet("/api/products", async (IMediator mediator) =>
+                app.MapGet("/api/products", async ([FromServices]IMediator mediator) =>
                 {
                     var result = await mediator.Send(new GetProductsQuery());
                     return Results.Ok(result);

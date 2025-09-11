@@ -14,7 +14,7 @@ namespace Payment.Application
     {
         public static IServiceCollection AddApplication(this IServiceCollection services)
         {
-            services.AddBuildingBlocksApplication();
+            services.AddBuildingBlocksApplication(Assembly.GetExecutingAssembly());
             return services;
         }
     }

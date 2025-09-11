@@ -4,11 +4,11 @@ using Microsoft.Extensions.Hosting;
 using Orchestration.API.Services;
 
 
-namespace Orchestration.Web.IoC
+namespace Orchestration.Web
 {
-    public static class ConfigureServicesDependencyInjection
+    public static class ConfigureDependencyInjection
     {
-        public static HostApplicationBuilder AddWeb(this HostApplicationBuilder builder)
+        public static HostApplicationBuilder AddServices(this HostApplicationBuilder builder)
         {
             if (builder.Environment.IsDevelopment())
             {

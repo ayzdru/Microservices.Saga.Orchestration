@@ -3,8 +3,16 @@ using System.Net.Http.Json;
 
 namespace BlazorWebAppOidc;
 
-internal sealed class ServerProduct(IHttpClientFactory clientFactory) : IProduct
+internal sealed class ApiGatewayServer(IHttpClientFactory clientFactory) : IApiGateway
 {
+    public async Task<ApiResult<string>> CreateOrderAsync(Order order)
+    {
+        var client = clientFactory.CreateClient("ApiGateway");
+        var response = await client.PostAsJsonAsync("/orders", order);
+        return await response.Content.ReadFromJsonAsync<ApiResult<string>>() ??
+           throw new IOException("Create order error!");
+    }
+
     public async Task<bool> CreateProductAsync(Product product)
     {
         var client = clientFactory.CreateClient("ApiGateway");

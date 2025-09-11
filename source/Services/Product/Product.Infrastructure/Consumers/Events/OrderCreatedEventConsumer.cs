@@ -10,21 +10,21 @@ namespace Product.Infrastructure.Consumers.Events;
 
 public class OrderCreatedEventConsumer : IConsumer<IOrderCreatedEvent>
 {
-    private readonly ProductDbContext _context;
+    private readonly ProductDbContext _dbContext;
     private readonly ILogger<OrderCreatedEventConsumer> _logger;
     private readonly IMassTransitService _massTransitService;
 
-    public OrderCreatedEventConsumer(ProductDbContext context, ILogger<OrderCreatedEventConsumer> logger, IMassTransitService massTransitService)
+    public OrderCreatedEventConsumer(ProductDbContext dbContext, ILogger<OrderCreatedEventConsumer> logger, IMassTransitService massTransitService)
     {
         _massTransitService = massTransitService;
-        _context = context;
+        _dbContext = dbContext;
         _logger = logger;
     }
 
     public async Task Consume(ConsumeContext<IOrderCreatedEvent> context)
-    {
+    {       
         var isThereEnoughStock = true;
-        foreach (var item in _context.Products.Where(x => context.Message.OrderItems.Select(y => y.ProductId).Contains(x.Id)).AsEnumerable())
+        foreach (var item in _dbContext.Products.Where(x => context.Message.OrderItems.Select(y => y.ProductId).Contains(x.Id)).AsEnumerable())
         {
             if (!context.Message.OrderItems.Select(y => y.ProductId).Contains(item.Id) || item.Stock <= context.Message.OrderItems.FirstOrDefault(y => y.ProductId == item.Id).Count)
             {
@@ -47,7 +47,7 @@ public class OrderCreatedEventConsumer : IConsumer<IOrderCreatedEvent>
         {
             foreach (var item in context.Message.OrderItems)
             {
-                var stock = await _context.Products.FirstOrDefaultAsync(x => x.Id == item.ProductId);
+                var stock = await _dbContext.Products.FirstOrDefaultAsync(x => x.Id == item.ProductId);
 
                 if (stock == null)
                 {
@@ -62,7 +62,7 @@ public class OrderCreatedEventConsumer : IConsumer<IOrderCreatedEvent>
                 }
 
                 stock.StockDecrease(item.Count);
-                await _context.SaveChangesAsync();                
+                await _dbContext.SaveChangesAsync();                
             }
 
             _logger.LogInformation("Stock was reserved with CorrelationId Id: {MessageCorrelationId}", context.Message.CorrelationId);

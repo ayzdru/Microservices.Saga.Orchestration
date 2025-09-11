@@ -21,7 +21,9 @@ using Microsoft.Extensions.Hosting;
 using Product.Application;
 using Product.Application.Interfaces;
 using Product.Core.Entities;
+using Product.Infrastructure.Consumers.Events;
 using Product.Infrastructure.Data;
+using Subscription.Infrastructure.Consumers.Messages;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -44,18 +46,21 @@ namespace Product.Infrastructure
                 options.AddInterceptors(sp.GetServices<ISaveChangesInterceptor>());
                 options.UseNpgsql(builder.Configuration.GetConnectionString("ProductDbConnection"));
             });
-            builder.Services.AddIdentity<User, Role>().AddEntityFrameworkStores<ProductDbContext>();
+            builder.Services.AddIdentityCore<User>().AddRoles<Role>().AddEntityFrameworkStores<ProductDbContext>();
             var rabbitMqSettings = builder.Configuration.GetSection("RabbitMQ").Get<RabbitMQSettings>();
 
             builder.Services.AddMassTransit(x =>
             {
-                x.AddEntityFrameworkOutbox<ProductDbContext>(o =>
-                {
-                    o.QueryDelay = TimeSpan.FromSeconds(1);
+                x.AddConsumer<OrderCreatedEventConsumer>();
+                x.AddConsumer<StockRollBackMessageConsumer>();
 
-                    o.UsePostgres();
-                    o.UseBusOutbox();
-                });
+                //x.AddEntityFrameworkOutbox<ProductDbContext>(o =>
+                //{
+                //    o.QueryDelay = TimeSpan.FromSeconds(1);
+
+                //    o.UsePostgres();
+                //    o.UseBusOutbox();
+                //});
 
                 x.UsingRabbitMq((context, cfg) =>
                 {
@@ -65,6 +70,15 @@ namespace Product.Infrastructure
                         h.Password(rabbitMqSettings.Password);
                     });
                     cfg.AutoStart = true;
+                    cfg.ReceiveEndpoint(EventBusConstants.Queues.OrderCreatedEventQueueName, e =>
+                    {
+                        e.ConfigureConsumer<OrderCreatedEventConsumer>(context);
+                    });
+
+                    cfg.ReceiveEndpoint(EventBusConstants.Queues.StockRollBackMessageQueueName, e =>
+                    {
+                        e.ConfigureConsumer<StockRollBackMessageConsumer>(context);
+                    });
                 });
             });
             builder.Services.AddScoped<IMassTransitService, MassTransitService>();

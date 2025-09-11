@@ -1,15 +1,15 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using Aspire.ServiceDefaults;
+using Consul;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.ServiceDiscovery;
 using OpenTelemetry;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Trace;
-using Steeltoe.Discovery.Consul;
 using HealthStatus = Microsoft.Extensions.Diagnostics.HealthChecks.HealthStatus;
 
 namespace Microsoft.Extensions.Hosting;
@@ -24,8 +24,15 @@ public static class Extensions
 
     public static TBuilder AddServiceDefaults<TBuilder>(this TBuilder builder) where TBuilder : IHostApplicationBuilder
     {
-        builder.Services.AddConsulDiscoveryClient();
 
+        ConsulSettings consulSettings = new ConsulSettings();
+
+        // Load settings from appsettings.json
+        builder.Configuration.GetSection("Consul").Bind(consulSettings);
+
+        builder.Services.AddSingleton<ConsulSettings>(consulSettings);
+        builder.Services.AddConsulSettings(consulSettings);
+        builder.Services.AddTransient<DiscoveryHttpDelegatingHandler>();
         builder.ConfigureOpenTelemetry();
 
         builder.AddDefaultHealthChecks();
@@ -38,7 +45,7 @@ public static class Extensions
             http.AddStandardResilienceHandler();
 
             // Turn on service discovery by default
-            http.AddServiceDiscovery();
+            //http.AddServiceDiscovery();
         });
 
         // Uncomment the following to restrict the allowed schemes for service discovery.
@@ -164,6 +171,48 @@ public static class Extensions
                 Predicate = r => r.Tags.Contains("live")
             });
         }
+        app.RegisterConsul();
         return app;
-    }   
+    }
+    public static IServiceCollection AddConsulSettings(this IServiceCollection services, ConsulSettings consulSettings)
+    {
+        services.AddSingleton<IConsulClient, ConsulClient>(c => new ConsulClient(config =>
+        {
+            config.Address = new Uri($"{consulSettings.Scheme}://{consulSettings.Host}:{consulSettings.Port}"); //add discovery address "http://127.0.0.1:8500"
+        }));
+
+        return services;
+    }
+
+    public static IHttpClientBuilder AddConsulServiceDiscovery(this IHttpClientBuilder builder)
+    {
+        builder.AddHttpMessageHandler<DiscoveryHttpDelegatingHandler>();
+        return builder;
+    }
+    public static IApplicationBuilder RegisterConsul(this IApplicationBuilder app)
+    {
+        ConsulSettings consulSettings = app.ApplicationServices.GetRequiredService<ConsulSettings>();
+        IConsulClient consulClient = app.ApplicationServices.GetRequiredService<IConsulClient>();
+        ILogger logger = app.ApplicationServices.GetRequiredService<ILoggerFactory>().CreateLogger("ConsulServiceRegistryExtension");
+        IHostApplicationLifetime lifetime = app.ApplicationServices.GetRequiredService<IHostApplicationLifetime>();
+
+        AgentServiceRegistration registration = new AgentServiceRegistration()
+        {
+            ID = consulSettings.Discovery.ServiceName, //service name
+            Name = consulSettings.Discovery.ServiceName,
+            Address = consulSettings.Discovery.Hostname,
+            Port = consulSettings.Discovery.Port
+
+        };
+
+        logger.LogInformation("Registering with Consul");
+        consulClient.Agent.ServiceDeregister(registration.ID).ConfigureAwait(true); //Deregister service before registering.
+        consulClient.Agent.ServiceRegister(registration).ConfigureAwait(true); //Deregister service before registering.
+
+        lifetime.ApplicationStopping.Register(() => {
+            logger.LogInformation("Deregistering with Consul");
+        });
+
+        return app;
+    }
 }

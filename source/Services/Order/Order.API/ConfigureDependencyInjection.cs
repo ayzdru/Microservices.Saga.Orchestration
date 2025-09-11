@@ -1,8 +1,9 @@
 ﻿
-using Order.API.Services;
+using Aspire.ServiceDefaults;
 using BuildingBlocks.Core.Interfaces;
+using BuildingBlocks.Web;
+using Order.API.Services;
 using Order.Application.Services;
-
 
 namespace Order.API
 {
@@ -16,7 +17,12 @@ namespace Order.API
             }
             builder.Services.AddHttpContextAccessor();
             builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
-            builder.Services.AddHttpClient<ApiGatewayService>(httpClient => httpClient.BaseAddress = new Uri(builder.Configuration["ApiGatewayUri"] ?? throw new Exception("Missing base address!"))).AddServiceDiscovery();
+            builder.Services.AddScoped<TokenHandler>();
+            builder.Services.AddHttpClient<ApiGatewayService>(httpClient => httpClient.BaseAddress = new Uri(builder.Configuration["ApiGatewayUri"] ?? throw new Exception("Missing base address!"))).AddConsulServiceDiscovery()             
+                .AddHttpMessageHandler<TokenHandler>().ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
+                 {
+                     ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => true
+                 });
 
             return builder;
         }

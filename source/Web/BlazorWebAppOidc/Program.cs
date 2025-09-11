@@ -53,7 +53,7 @@ builder.Services.AddRazorComponents()
     .AddInteractiveWebAssemblyComponents()
     .AddAuthenticationStateSerialization(options => options.SerializeAllClaims = true);
 
-builder.Services.AddScoped<IProduct, ServerProduct>();
+builder.Services.AddScoped<IApiGateway, ApiGatewayServer>();
 
 builder.Services.AddHttpContextAccessor();
 
@@ -71,25 +71,31 @@ var app = builder.Build();
 //Product API group
 var productsApi = app.MapGroup("/api/products").RequireAuthorization();
 
-productsApi.MapGet("/", async ([FromServices] IProduct product) =>
+productsApi.MapGet("/", async ([FromServices] IApiGateway apiGatewayServer) =>
 {
-    return await product.GetProductsAsync();
+    return await apiGatewayServer.GetProductsAsync();
 });
 
-productsApi.MapPost("/", async ([FromServices] IProduct product, [FromBody] Product newProduct) =>
+productsApi.MapPost("/", async ([FromServices] IApiGateway apiGatewayServer, [FromBody] Product newProduct) =>
 {
-    return await product.CreateProductAsync(newProduct);
+    return await apiGatewayServer.CreateProductAsync(newProduct);
 });
 
-productsApi.MapPut("/{id:guid}", async ([FromServices] IProduct product, Guid id, [FromBody] Product updatedProduct) =>
+productsApi.MapPut("/{id:guid}", async ([FromServices] IApiGateway apiGatewayServer, Guid id, [FromBody] Product updatedProduct) =>
 {
     updatedProduct.Id = id;
-    return await product.UpdateProductAsync(updatedProduct);
+    return await apiGatewayServer.UpdateProductAsync(updatedProduct);
 });
 
-productsApi.MapDelete("/{id:guid}", async ([FromServices] IProduct product, Guid id) =>
+productsApi.MapDelete("/{id:guid}", async ([FromServices] IApiGateway apiGatewayServer, Guid id) =>
 {
-    return await product.DeleteProductAsync(id);
+    return await apiGatewayServer.DeleteProductAsync(id);
+});
+
+var ordersApi = app.MapGroup("/api/orders").RequireAuthorization();
+ordersApi.MapPost("/", async ([FromServices] IApiGateway apiGatewayServer, [FromBody] Order order) =>
+{
+    return await apiGatewayServer.CreateOrderAsync(order);
 });
 if (app.Environment.IsDevelopment())
 {

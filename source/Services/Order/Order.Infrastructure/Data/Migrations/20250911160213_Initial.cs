@@ -160,7 +160,7 @@ namespace Order.Infrastructure.Data.Migrations
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     UserId = table.Column<Guid>(type: "uuid", nullable: false),
                     Status = table.Column<int>(type: "integer", nullable: false),
-                    ErrorMessage = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: false),
+                    ErrorMessage = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
                     CreatedByUserId = table.Column<Guid>(type: "uuid", nullable: true),
                     CreatedDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     UpdatedByUserId = table.Column<Guid>(type: "uuid", nullable: true),

@@ -1,12 +1,17 @@
 @page "/products"
 @using Microsoft.AspNetCore.Authorization
-@inject IProduct ProductService
+@using System.Security.Claims
+@inject IApiGateway ApiGatewayClient
+@inject PersistentComponentState ApplicationState
+@inject AuthenticationStateProvider AuthenticationStateProvider
 @attribute [Authorize]
 @implements IDisposable
-@inject PersistentComponentState ApplicationState
+
 <h3>Products</h3>
 
 <button class="btn btn-primary" @onclick="ShowCreateModal">Create Product</button>
+<button class="btn btn-success ms-2" @onclick="CreateOrder" disabled="@(!selectedProductIds.Any())">Create Order</button>
+
 @if (products == null)
 {
     <p><em>Loading...</em></p>
@@ -16,6 +21,7 @@ else
 <table class="table">
     <thead>
         <tr>
+            <th></th>
             <th>Name</th>
             <th>Price</th>
             <th>Stock</th>
@@ -26,6 +32,11 @@ else
         @foreach (var product in products)
         {
             <tr>
+                <td>
+                    <input type="checkbox"
+                           @bind="selectedProductIdsMap[product.Id]"
+                           @bind:event="onchange" />
+                </td>
                 <td>@product.Name</td>
                 <td>@product.Price</td>
                 <td>@product.Stock</td>
@@ -38,6 +49,7 @@ else
     </tbody>
 </table>
 }
+
 <!-- Create/Edit Modal -->
 @if (isModalOpen)
 {
@@ -85,8 +97,51 @@ else
     </div>
     <div class="modal-backdrop show"></div>
 }
+<!-- Success Modal -->
+@if (isOrderSuccessModalOpen)
+{
+    <div class="modal show d-block" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Order Sent</h5>
+                    <button type="button" class="btn-close" @onclick="CloseOrderSuccessModal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Your order has been sent successfully!</p>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-primary" @onclick="CloseOrderSuccessModal">OK</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-backdrop show"></div>
+}
 
+<!-- Error Modal -->
+@if (isOrderErrorModalOpen)
+{
+    <div class="modal show d-block" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title text-danger">Order Error</h5>
+                    <button type="button" class="btn-close" @onclick="CloseOrderErrorModal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>@orderErrorMessage</p>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" @onclick="CloseOrderErrorModal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-backdrop show"></div>
+}
 @code {
+
     private IEnumerable<Product>? products; 
     private PersistingComponentStateSubscription persistingSubscription;
     bool isModalOpen = false;
@@ -95,6 +150,10 @@ else
     string modalActionText = "";
     Product modalProduct = new();
     Product? deleteProduct;
+
+    // Checkbox selection state
+    private Dictionary<Guid, bool> selectedProductIdsMap = new();
+    private List<Guid> selectedProductIds => selectedProductIdsMap.Where(x => x.Value).Select(x => x.Key).ToList();
 
     protected override async Task OnInitializedAsync()
     {
@@ -105,12 +164,14 @@ else
     {
         if (!ApplicationState.TryTakeFromJson<IEnumerable<Product>>(nameof(products), out var restoredData))
         {
-            products = await ProductService.GetProductsAsync();
+            products = await ApiGatewayClient.GetProductsAsync();
         }
         else
         {
             products = restoredData!;
         }
+        // Initialize checkbox map
+        selectedProductIdsMap = products?.ToDictionary(p => p.Id, p => false) ?? new();
         persistingSubscription = ApplicationState.RegisterOnPersisting(PersistData);
     }
 
@@ -146,12 +207,12 @@ else
         if (modalProduct.Id == Guid.Empty)
         {
             // Create
-            await ProductService.CreateProductAsync(modalProduct);
+            await ApiGatewayClient.CreateProductAsync(modalProduct);
         }
         else
         {
             // Edit
-            await ProductService.UpdateProductAsync(modalProduct);
+            await ApiGatewayClient.UpdateProductAsync(modalProduct);
         }
         await LoadProducts();
         isModalOpen = false;
@@ -172,11 +233,12 @@ else
     {
         if (deleteProduct != null)
         {
-            await ProductService.DeleteProductAsync(deleteProduct.Id);
+            await ApiGatewayClient.DeleteProductAsync(deleteProduct.Id);
             await LoadProducts();
         }
         isDeleteModalOpen = false;
     }
+
     private Task PersistData()
     {
         ApplicationState.PersistAsJson(nameof(products), products);
@@ -185,4 +247,63 @@ else
     }
 
     void IDisposable.Dispose() => persistingSubscription.Dispose();
+    bool isOrderSuccessModalOpen = false;
+    bool isOrderErrorModalOpen = false;
+    string orderErrorMessage = string.Empty;
+
+    void CloseOrderSuccessModal()
+    {
+        isOrderSuccessModalOpen = false;
+    }
+
+    void CloseOrderErrorModal()
+    {
+        isOrderErrorModalOpen = false;
+        orderErrorMessage = string.Empty;
+    }
+    // CreateOrder button handler
+    async Task CreateOrder()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+        var userId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? user.FindFirst("sub")?.Value;
+
+        if (string.IsNullOrEmpty(userId) || !selectedProductIds.Any())
+            return;
+
+        // Prepare order items
+        var selectedProducts = products?.Where(p => selectedProductIds.Contains(p.Id)).ToList() ?? new List<Product>();
+        var orderItems = selectedProducts.Select(p => new OrderItem
+        {
+            ProductId = p.Id,
+            Count = 1 // You can add quantity selection if needed
+        }).ToList();
+
+        var order = new Order
+        {
+            UserId = Guid.Parse(userId),
+            OrderItems = orderItems
+        };
+
+        try
+        {
+            var result = await ApiGatewayClient.CreateOrderAsync(order);
+
+            if (result.Success == true)
+            {
+                isOrderSuccessModalOpen = true;
+                selectedProductIdsMap = products?.ToDictionary(p => p.Id, p => false) ?? new();
+            }
+            else
+            {
+                orderErrorMessage = result.Message;
+                isOrderErrorModalOpen = true;
+            }
+        }
+        catch (Exception ex)
+        {
+            orderErrorMessage = ex.Message;
+            isOrderErrorModalOpen = true;
+        }
+    }
 }

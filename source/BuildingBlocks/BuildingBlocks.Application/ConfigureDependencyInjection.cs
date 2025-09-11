@@ -13,11 +13,11 @@ namespace BuildingBlocks.Application
 {
     public static class ConfigureDependencyInjection
     {
-        public static IServiceCollection AddBuildingBlocksApplication(this IServiceCollection services)
-        {
-            services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
+        public static IServiceCollection AddBuildingBlocksApplication(this IServiceCollection services, Assembly assembly)
+        {            
+            services.AddValidatorsFromAssembly(assembly);
             services.AddMediatR(cfg => {
-                cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly());
+                cfg.RegisterServicesFromAssembly(assembly);
                 cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(UnhandledExceptionBehaviour<,>));
                 cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(AuthorizationBehaviour<,>));
                 cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(ValidationBehaviour<,>));

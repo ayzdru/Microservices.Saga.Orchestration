@@ -20,17 +20,20 @@ public class CurrentUserService : ICurrentUserService
         get
         {
 
-            var token = _httpContextAccessor.HttpContext?.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
-
-            var handler = new JwtSecurityTokenHandler();
-            var jwtToken = handler.ReadJwtToken(token);
-
-            var userId = jwtToken.Claims.First(claim => claim.Type == JwtRegisteredClaimNames.Sub).Value;
-            if (!string.IsNullOrEmpty(userId))
+            if (_httpContextAccessor.HttpContext != null)
             {
-                if (Guid.TryParse(userId, out Guid _userId))
+                var token = _httpContextAccessor.HttpContext?.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+
+                var handler = new JwtSecurityTokenHandler();
+                var jwtToken = handler.ReadJwtToken(token);
+
+                var userId = jwtToken.Claims.First(claim => claim.Type == JwtRegisteredClaimNames.Sub).Value;
+                if (!string.IsNullOrEmpty(userId))
                 {
-                    return _userId;
+                    if (Guid.TryParse(userId, out Guid _userId))
+                    {
+                        return _userId;
+                    }
                 }
             }
             return null;

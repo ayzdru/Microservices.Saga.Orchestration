@@ -8,7 +8,7 @@ using Microsoft.Extensions.Logging;
 using Orchestration.Infrastructure;
 using Orchestration.Infrastructure.Data;
 using Orchestration.Infrastructure.StateMachines.Order;
-using Orchestration.Web.IoC;
+using Orchestration.Web;
 using Serilog;
 using Serilog.Core;
 using Serilog.Events;
@@ -48,7 +48,7 @@ builder.Services.AddLogging(config =>
 
 
 
-builder.AddInfrastructure().AddWeb();
+builder.AddInfrastructure().AddServices();
 
 using IHost host = builder.Build();
 using (var scope = host.Services.CreateScope())

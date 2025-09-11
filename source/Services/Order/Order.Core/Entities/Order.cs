@@ -7,10 +7,10 @@ public class Order : BaseEntity
 {    
     public Guid UserId { get; private set; }
     public OrderStatus Status { get; private set; }
-    public string ErrorMessage { get; private set; }
+    public string? ErrorMessage { get; private set; }
     private readonly List<OrderItem> _orderItems = new List<OrderItem>();
     public IReadOnlyCollection<OrderItem> OrderItems => _orderItems.AsReadOnly();
-    public Order(Guid userId, OrderStatus status, string errorMessage)
+    public Order(Guid userId, OrderStatus status, string? errorMessage)
     {
         UserId = userId;
         Status = status;

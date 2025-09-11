@@ -29,8 +29,8 @@ namespace Product.Application.Commands
                 .ChildRules(orderItem =>
                 {
                     orderItem.RuleFor(i => i.Count)
-                        .GreaterThan(1)
-                        .WithMessage("OrderItem Count must be greater than 1.");
+                        .GreaterThan(0)
+                        .WithMessage("OrderItem Count must be greater than 0.");
                 });
         }
     }

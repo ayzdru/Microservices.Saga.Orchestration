@@ -14,6 +14,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Order.Application;
 using Order.Application.Interfaces;
+using Order.Infrastructure.Consumers;
 using Order.Infrastructure.Data;
 using System;
 using System.Collections.Generic;
@@ -36,18 +37,20 @@ namespace Order.Infrastructure
                 options.UseNpgsql(
                     builder.Configuration.GetConnectionString("OrderDbConnection"));
             });
-            builder.Services.AddIdentity<User, Role>().AddEntityFrameworkStores<OrderDbContext>();
+            builder.Services.AddIdentityCore<User>().AddRoles<Role>().AddEntityFrameworkStores<OrderDbContext>();
             var rabbitMqSettings = builder.Configuration.GetSection("RabbitMQ").Get<RabbitMQSettings>();
 
             builder.Services.AddMassTransit(x =>
             {
-                x.AddEntityFrameworkOutbox<OrderDbContext>(o =>
-                {
-                    o.QueryDelay = TimeSpan.FromSeconds(1);
+                x.AddConsumer<OrderCompletedEventConsumer>();
+                x.AddConsumer<OrderFailedEventConsumer>();
+                //x.AddEntityFrameworkOutbox<OrderDbContext>(o =>
+                //{
+                //    o.QueryDelay = TimeSpan.FromSeconds(1);
 
-                    o.UsePostgres();
-                    o.UseBusOutbox();
-                });
+                //    o.UsePostgres();
+                //    o.UseBusOutbox();
+                //});
 
                 x.UsingRabbitMq((context, cfg) =>
                 {
@@ -57,6 +60,15 @@ namespace Order.Infrastructure
                         h.Password(rabbitMqSettings.Password);
                     });
                     cfg.AutoStart = true;
+                    cfg.ReceiveEndpoint(EventBusConstants.Queues.OrderCompletedEventQueueName, x =>
+                    {
+                        x.ConfigureConsumer<OrderCompletedEventConsumer>(context);
+                    });
+
+                    cfg.ReceiveEndpoint(EventBusConstants.Queues.OrderFailedEventQueueName, x =>
+                    {
+                        x.ConfigureConsumer<OrderFailedEventConsumer>(context);
+                    });
                 });
             });
             builder.Services.AddScoped<IMassTransitService, MassTransitService>();
