@@ -3,6 +3,7 @@ using BuildingBlocks.Core.Entities;
 using BuildingBlocks.Core.Interfaces;
 using BuildingBlocks.Infrastructure;
 using BuildingBlocks.Infrastructure.Data.Interceptors;
+using BuildingBlocks.Infrastructure.Data.Stores;
 using BuildingBlocks.MassTransit.Interfaces;
 using BuildingBlocks.MassTransit.Services;
 using BuildingBlocks.MassTransit.Settings;
@@ -38,18 +39,6 @@ namespace Product.Infrastructure
 
     public static class ConfigureDependencyInjection
     {
-        public class UserStore : UserStore<User, Role, ProductDbContext, Guid, UserClaim, UserRole, UserLogin, UserToken, RoleClaim>
-        {
-            public UserStore(ProductDbContext context, IdentityErrorDescriber? describer = null) : base(context, describer)
-            {
-            }
-        }
-        public class AppRoleStore : RoleStore<Role, ProductDbContext, Guid, UserRole, RoleClaim>
-        {
-            public AppRoleStore(ProductDbContext context, IdentityErrorDescriber? describer = null) : base(context, describer)
-            {
-            }
-        }
         public static WebApplicationBuilder AddInfrastructure(this WebApplicationBuilder builder)
         {
             builder.Services.AddBuildingBlocksInfrastructure();
@@ -59,11 +48,17 @@ namespace Product.Infrastructure
                 options.AddInterceptors(sp.GetServices<ISaveChangesInterceptor>());
                 options.UseNpgsql(builder.Configuration.GetConnectionString("ProductDbConnection"));
             });
-            builder.Services.AddIdentityCore<User>().AddRoles<Role>().AddUserStore<UserStore>().AddRoleStore<AppRoleStore>();
+
+            builder.Services.AddIdentityCore<User>()
+                            .AddRoles<Role>()
+                            .AddUserStore<AppUserStore<ProductDbContext>>()
+                            .AddRoleStore<AppRoleStore<ProductDbContext>>();
+
             var rabbitMqSettings = builder.Configuration.GetSection("RabbitMQ").Get<RabbitMQSettings>();
 
             builder.Services.AddMassTransit(x =>
             {
+                x.AddConsumer<UserRegisteredEventConsumer>();
                 x.AddConsumer<OrderCreatedEventConsumer>();
                 x.AddConsumer<StockRollBackMessageConsumer>();
 
@@ -83,11 +78,11 @@ namespace Product.Infrastructure
                         h.Password(rabbitMqSettings.Password);
                     });
                     cfg.AutoStart = true;
+                    cfg.ConfigureEndpoints(context);
                     cfg.ReceiveEndpoint(EventBusConstants.Queues.OrderCreatedEventQueueName, e =>
                     {
                         e.ConfigureConsumer<OrderCreatedEventConsumer>(context);                        
                     });
-
                     cfg.ReceiveEndpoint(EventBusConstants.Queues.StockRollBackMessageQueueName, e =>
                     {
                         e.ConfigureConsumer<StockRollBackMessageConsumer>(context);

@@ -1,6 +1,7 @@
 ﻿using BuildingBlocks.Core.Entities;
 using BuildingBlocks.Core.Interfaces;
 using BuildingBlocks.Infrastructure;
+using BuildingBlocks.Infrastructure.Data.Stores;
 using BuildingBlocks.MassTransit.Interfaces;
 using BuildingBlocks.MassTransit.Services;
 using BuildingBlocks.MassTransit.Settings;
@@ -22,6 +23,7 @@ using Orchestration.Application;
 using Orchestration.Application.Interfaces;
 using Orchestration.Infrastructure.Data;
 using Orchestration.Infrastructure.StateMachines.Order;
+using Product.Infrastructure.Consumers.Events;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -30,19 +32,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Orchestration.Infrastructure
-{
-    public class UserStore : UserStore<User, Role, OrchestrationDbContext, Guid, UserClaim, UserRole, UserLogin, UserToken, RoleClaim>
-    {
-        public UserStore(OrchestrationDbContext context, IdentityErrorDescriber? describer = null) : base(context, describer)
-        {
-        }
-    }
-    public class AppRoleStore : RoleStore<Role, OrchestrationDbContext, Guid, UserRole, RoleClaim>
-    {
-        public AppRoleStore(OrchestrationDbContext context, IdentityErrorDescriber? describer = null) : base(context, describer)
-        {
-        }
-    }
+{ 
     public static class ConfigureDependencyInjection
     {
         public static HostApplicationBuilder AddInfrastructure(this HostApplicationBuilder builder)
@@ -51,7 +41,10 @@ namespace Orchestration.Infrastructure
             builder.Services.AddAuthorization();
             builder.Services.AddBuildingBlocksInfrastructure();
               
-            builder.Services.AddIdentityCore<User>().AddRoles<Role>().AddUserStore<UserStore>().AddRoleStore<AppRoleStore>();
+            builder.Services.AddIdentityCore<User>()
+    .AddRoles<Role>()
+    .AddUserStore<AppUserStore<OrchestrationDbContext>>()
+    .AddRoleStore<AppRoleStore<OrchestrationDbContext>>();
 
             builder.Services.AddDbContext<OrchestrationDbContext>((sp, options) =>
             {
@@ -65,6 +58,7 @@ namespace Orchestration.Infrastructure
             var rabbitMqSettings = builder.Configuration.GetSection("RabbitMQ").Get<RabbitMQSettings>();
             builder.Services.AddMassTransit(x =>
             {
+                x.AddConsumer<UserRegisteredEventConsumer>();
                 x.UsingRabbitMq((context, cfg) =>
                 {
                     cfg.Host(rabbitMqSettings.Host, rabbitMqSettings.Port, rabbitMqSettings.VirtualHost, h =>
@@ -72,6 +66,7 @@ namespace Orchestration.Infrastructure
                         h.Username(rabbitMqSettings.Username);
                         h.Password(rabbitMqSettings.Password);
                     });
+                    cfg.ConfigureEndpoints(context);
                     cfg.ReceiveEndpoint(EventBusConstants.Queues.CreateOrderMessageQueueName, e => { e.ConfigureSaga<OrderState>(context); });
                 });
                 x.AddEntityFrameworkOutbox<OrchestrationDbContext>(o =>

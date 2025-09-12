@@ -1,6 +1,7 @@
 ﻿using BuildingBlocks.Core.Entities;
 using BuildingBlocks.Core.Interfaces;
 using BuildingBlocks.Infrastructure;
+using BuildingBlocks.Infrastructure.Data.Stores;
 using BuildingBlocks.MassTransit.Interfaces;
 using BuildingBlocks.MassTransit.Services;
 using BuildingBlocks.MassTransit.Settings;
@@ -27,27 +28,17 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Order.Infrastructure
-{
-    public class UserStore : UserStore<User, Role, OrderDbContext, Guid, UserClaim, UserRole, UserLogin, UserToken, RoleClaim>
-    {
-        public UserStore(OrderDbContext context, IdentityErrorDescriber? describer = null) : base(context, describer)
-        {
-        }
-    }
-    public class AppRoleStore : RoleStore<Role, OrderDbContext, Guid, UserRole, RoleClaim>
-    {
-        public AppRoleStore(OrderDbContext context, IdentityErrorDescriber? describer = null) : base(context, describer)
-        {
-        }
-    }
+{    
     public static class ConfigureDependencyInjection
     {
         public static WebApplicationBuilder AddInfrastructure(this WebApplicationBuilder builder)
         {
             builder.Services.AddBuildingBlocksInfrastructure();
-            
-            builder.Services.AddIdentityCore<User>().AddRoles<Role>().AddUserStore<UserStore>().AddRoleStore<AppRoleStore>();
 
+            builder.Services.AddIdentityCore<User>()
+                .AddRoles<Role>()
+                .AddUserStore<AppUserStore<OrderDbContext>>()
+                .AddRoleStore<AppRoleStore<OrderDbContext>>();
             builder.Services.AddDbContext<OrderDbContext>((sp, options) =>
             {
                 options.AddInterceptors(sp.GetServices<ISaveChangesInterceptor>());
@@ -76,11 +67,11 @@ namespace Order.Infrastructure
                         h.Password(rabbitMqSettings.Password);
                     });
                     cfg.AutoStart = true;
+                    cfg.ConfigureEndpoints(context);
                     cfg.ReceiveEndpoint(EventBusConstants.Queues.OrderCompletedEventQueueName, x =>
                     {
                         x.ConfigureConsumer<OrderCompletedEventConsumer>(context);
                     });
-
                     cfg.ReceiveEndpoint(EventBusConstants.Queues.OrderFailedEventQueueName, x =>
                     {
                         x.ConfigureConsumer<OrderFailedEventConsumer>(context);

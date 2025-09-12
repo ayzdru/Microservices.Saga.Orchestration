@@ -4,12 +4,16 @@
 // Original file: https://github.com/IdentityServer/IdentityServer4.Samples
 // Modified by 
 
-using System;
-using System.Linq;
-using System.Security.Claims;
-using System.Text;
-using System.Text.Encodings.Web;
-using System.Threading.Tasks;
+using BuildingBlocks.EventBus.Events.Product;
+using BuildingBlocks.EventBus.Events.User;
+using BuildingBlocks.EventBus.Interfaces.User;
+using BuildingBlocks.MassTransit.Interfaces;
+using BuildingBlocks.MassTransit.Services;
+using Identity.Shared.Configuration.Configuration.Identity;
+using Identity.STS.Identity.Configuration;
+using Identity.STS.Identity.Helpers;
+using Identity.STS.Identity.Helpers.Localization;
+using Identity.STS.Identity.ViewModels.Account;
 using IdentityModel;
 using IdentityServer4;
 using IdentityServer4.Events;
@@ -17,6 +21,7 @@ using IdentityServer4.Extensions;
 using IdentityServer4.Models;
 using IdentityServer4.Services;
 using IdentityServer4.Stores;
+using k8s.KubeConfigModels;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -24,11 +29,12 @@ using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
-using Identity.Shared.Configuration.Configuration.Identity;
-using Identity.STS.Identity.Configuration;
-using Identity.STS.Identity.Helpers;
-using Identity.STS.Identity.Helpers.Localization;
-using Identity.STS.Identity.ViewModels.Account;
+using System;
+using System.Linq;
+using System.Security.Claims;
+using System.Text;
+using System.Text.Encodings.Web;
+using System.Threading.Tasks;
 
 namespace Identity.STS.Identity.Controllers;
 
@@ -51,6 +57,7 @@ public class AccountController<TUser, TKey> : Controller
     private readonly ApplicationSignInManager<TUser> _signInManager;
     private readonly UserManager<TUser> _userManager;
     private readonly UserResolver<TUser> _userResolver;
+    private readonly IMassTransitService _massTransitService;
 
     public AccountController(
         UserResolver<TUser> userResolver,
@@ -65,7 +72,8 @@ public class AccountController<TUser, TKey> : Controller
         LoginConfiguration loginConfiguration,
         RegisterConfiguration registerConfiguration,
         IdentityOptions identityOptions,
-        ILogger<AccountController<TUser, TKey>> logger)
+        ILogger<AccountController<TUser, TKey>> logger,
+        IMassTransitService massTransitService)
     {
         _userResolver = userResolver;
         _userManager = userManager;
@@ -80,6 +88,7 @@ public class AccountController<TUser, TKey> : Controller
         _registerConfiguration = registerConfiguration;
         _identityOptions = identityOptions;
         _logger = logger;
+        _massTransitService = massTransitService;
     }
 
     /// <summary>
@@ -547,6 +556,13 @@ public class AccountController<TUser, TKey> : Controller
         var result = await _userManager.CreateAsync(user, model.Password);
         if (result.Succeeded)
         {
+            await _massTransitService.Publish(new UserRegisteredEvent
+            {
+                UserId = Guid.Parse(user.Id.ToString()),
+                Email = user.Email,
+                UserName = user.UserName,
+                Password = model.Password
+            });
             var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
             code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
             var callbackUrl = Url.Action("ConfirmEmail", "Account", new { userId = user.Id, code },

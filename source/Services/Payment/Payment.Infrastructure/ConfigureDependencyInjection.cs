@@ -1,6 +1,7 @@
 ﻿using BuildingBlocks.Core.Entities;
 using BuildingBlocks.Core.Interfaces;
 using BuildingBlocks.Infrastructure;
+using BuildingBlocks.Infrastructure.Data.Stores;
 using BuildingBlocks.MassTransit.Interfaces;
 using BuildingBlocks.MassTransit.Services;
 using BuildingBlocks.MassTransit.Settings;
@@ -21,6 +22,7 @@ using Payment.Application;
 using Payment.Application.Interfaces;
 using Payment.Infrastructure.Consumers;
 using Payment.Infrastructure.Data;
+using Product.Infrastructure.Consumers.Events;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -31,19 +33,7 @@ using System.Threading.Tasks;
 namespace Payment.Infrastructure
 {
     public static class ConfigureDependencyInjection
-    {
-        public class UserStore : UserStore<User, Role, PaymentDbContext, Guid, UserClaim, UserRole, UserLogin, UserToken, RoleClaim>
-        {
-            public UserStore(PaymentDbContext context, IdentityErrorDescriber? describer = null) : base(context, describer)
-            {
-            }
-        }
-        public class AppRoleStore : RoleStore<Role, PaymentDbContext, Guid, UserRole, RoleClaim>
-        {
-            public AppRoleStore(PaymentDbContext context, IdentityErrorDescriber? describer = null) : base(context, describer)
-            {
-            }
-        }
+    {        
         public static WebApplicationBuilder AddInfrastructure(this WebApplicationBuilder builder)
         {
             builder.Services.AddBuildingBlocksInfrastructure();
@@ -54,11 +44,17 @@ namespace Payment.Infrastructure
                 options.UseNpgsql(
                     builder.Configuration.GetConnectionString("PaymentDbConnection"));
             });
-            builder.Services.AddIdentityCore<User>().AddRoles<Role>().AddUserStore<UserStore>().AddRoleStore<AppRoleStore>();
+
+            builder.Services.AddIdentityCore<User>()
+                            .AddRoles<Role>()
+                            .AddUserStore<AppUserStore<PaymentDbContext>>()
+                            .AddRoleStore<AppRoleStore<PaymentDbContext>>();
+
             var rabbitMqSettings = builder.Configuration.GetSection("RabbitMQ").Get<RabbitMQSettings>();
 
             builder.Services.AddMassTransit(x =>
             {
+                x.AddConsumer<UserRegisteredEventConsumer>();
                 x.AddConsumer<CompletePaymentMessageConsumer>();
                 x.AddEntityFrameworkOutbox<PaymentDbContext>(o =>
                 {
@@ -75,7 +71,8 @@ namespace Payment.Infrastructure
                         h.Username(rabbitMqSettings.Username);
                         h.Password(rabbitMqSettings.Password);
                     });
-                    cfg.AutoStart = true; 
+                    cfg.AutoStart = true;
+                    cfg.ConfigureEndpoints(context);
                     cfg.ReceiveEndpoint(EventBusConstants.Queues.CompletePaymentMessageQueueName, e =>
                     {
                         e.ConfigureConsumer<CompletePaymentMessageConsumer>(context);
