@@ -3,7 +3,7 @@ using MassTransit;
 
 namespace Orchestration.Infrastructure.StateMachines.Order;
 
-public class OrderStateInstance : SagaStateMachineInstance
+public class OrderState : SagaStateMachineInstance
 {
     public Guid CorrelationId { get; set; }
     public string CurrentState { get; set; }

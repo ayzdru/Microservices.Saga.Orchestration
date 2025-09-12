@@ -4,19 +4,15 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Orchestration.Infrastructure.StateMachines.Order;
 
-public class OrderStateMap: SagaClassMap<OrderStateInstance>
+public class OrderStateMap: SagaClassMap<OrderState>
 {
-    protected override void Configure(EntityTypeBuilder<OrderStateInstance> entity, ModelBuilder model)
+    protected override void Configure(EntityTypeBuilder<OrderState> entity, ModelBuilder model)
     {
         entity.Property(x => x.CurrentState);
 
-        entity.Property(x => x.UserId)
-               .IsRequired();
-
-        entity.Property(x => x.OrderId)
-            .IsRequired();
-
-        entity.Property(x => x.TotalPrice)
-            .HasDefaultValue(0);
+        entity.Property(x => x.CreatedDate);
+        entity.Property(x => x.OrderId);
+        entity.Property(x => x.TotalPrice);
+        entity.Property(x => x.UserId);
     }
 }

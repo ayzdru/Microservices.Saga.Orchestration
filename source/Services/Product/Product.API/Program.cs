@@ -85,13 +85,13 @@ namespace Product.API
                     options.AddDocumentTransformer<OAuth2DocumentTransformer>();
                 });
 
-                var app = builder.Build(); 
-                //using (var scope = app.Services.CreateScope())
-                //{
-                //    var initializer = scope.ServiceProvider.GetRequiredService<ProductDbContextInitializer>();
-                //    await initializer.InitialiseAsync(CancellationToken.None);
-                //    await initializer.SeedAsync(CancellationToken.None);
-                //}
+                var app = builder.Build();
+                using (var scope = app.Services.CreateScope())
+                {
+                    var initializer = scope.ServiceProvider.GetRequiredService<ProductDbContextInitializer>();
+                    await initializer.InitialiseAsync(CancellationToken.None);
+                    await initializer.SeedAsync(CancellationToken.None);
+                }
                 // Configure the HTTP request pipeline.
                 if (app.Environment.IsDevelopment())
                 {

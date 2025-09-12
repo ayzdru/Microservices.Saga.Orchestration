@@ -5,8 +5,11 @@ using BuildingBlocks.MassTransit.Interfaces;
 using BuildingBlocks.MassTransit.Services;
 using BuildingBlocks.MassTransit.Settings;
 using MassTransit;
+using MassTransit.Configuration;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
@@ -25,11 +28,25 @@ using System.Threading.Tasks;
 
 namespace Order.Infrastructure
 {
+    public class UserStore : UserStore<User, Role, OrderDbContext, Guid, UserClaim, UserRole, UserLogin, UserToken, RoleClaim>
+    {
+        public UserStore(OrderDbContext context, IdentityErrorDescriber? describer = null) : base(context, describer)
+        {
+        }
+    }
+    public class AppRoleStore : RoleStore<Role, OrderDbContext, Guid, UserRole, RoleClaim>
+    {
+        public AppRoleStore(OrderDbContext context, IdentityErrorDescriber? describer = null) : base(context, describer)
+        {
+        }
+    }
     public static class ConfigureDependencyInjection
     {
         public static WebApplicationBuilder AddInfrastructure(this WebApplicationBuilder builder)
         {
             builder.Services.AddBuildingBlocksInfrastructure();
+            
+            builder.Services.AddIdentityCore<User>().AddRoles<Role>().AddUserStore<UserStore>().AddRoleStore<AppRoleStore>();
 
             builder.Services.AddDbContext<OrderDbContext>((sp, options) =>
             {
@@ -37,21 +54,20 @@ namespace Order.Infrastructure
                 options.UseNpgsql(
                     builder.Configuration.GetConnectionString("OrderDbConnection"));
             });
-            builder.Services.AddIdentityCore<User>().AddRoles<Role>().AddEntityFrameworkStores<OrderDbContext>();
             var rabbitMqSettings = builder.Configuration.GetSection("RabbitMQ").Get<RabbitMQSettings>();
 
             builder.Services.AddMassTransit(x =>
             {
                 x.AddConsumer<OrderCompletedEventConsumer>();
                 x.AddConsumer<OrderFailedEventConsumer>();
-                //x.AddEntityFrameworkOutbox<OrderDbContext>(o =>
-                //{
-                //    o.QueryDelay = TimeSpan.FromSeconds(1);
 
-                //    o.UsePostgres();
-                //    o.UseBusOutbox();
-                //});
+                x.AddEntityFrameworkOutbox<OrderDbContext>(o =>
+                {
+                    o.QueryDelay = TimeSpan.FromSeconds(1);
 
+                    o.UsePostgres();
+                    o.UseBusOutbox();
+                });
                 x.UsingRabbitMq((context, cfg) =>
                 {
                     cfg.Host(rabbitMqSettings.Host, rabbitMqSettings.Port, rabbitMqSettings.VirtualHost, h =>
@@ -70,9 +86,13 @@ namespace Order.Infrastructure
                         x.ConfigureConsumer<OrderFailedEventConsumer>(context);
                     });
                 });
+                x.AddConfigureEndpointsCallback((context, name, cfg) =>
+                {
+                    cfg.UseEntityFrameworkOutbox<OrderDbContext>(context);
+                });
             });
-            builder.Services.AddScoped<IMassTransitService, MassTransitService>();
-            builder.Services.AddScoped<IApplicationDbContext>(provider => provider.GetRequiredService<OrderDbContext>());
+            builder.Services.AddScoped<IMassTransitService, MassTransitService>(); 
+            builder.Services.AddScoped<IApplicationDbContext, OrderDbContext>();
             builder.Services.AddScoped<OrderDbContextInitializer>();
             builder.Services.AddApplication();
             return builder;

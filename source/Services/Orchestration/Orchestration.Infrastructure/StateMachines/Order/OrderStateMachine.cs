@@ -10,7 +10,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Orchestration.Infrastructure.StateMachines.Order;
 
-public class OrderStateMachine : MassTransitStateMachine<OrderStateInstance>
+public class OrderStateMachine : MassTransitStateMachine<OrderState>
 {
     private readonly ILogger _logger;
 

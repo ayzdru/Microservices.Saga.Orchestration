@@ -12,6 +12,7 @@ using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -37,6 +38,18 @@ namespace Product.Infrastructure
 
     public static class ConfigureDependencyInjection
     {
+        public class UserStore : UserStore<User, Role, ProductDbContext, Guid, UserClaim, UserRole, UserLogin, UserToken, RoleClaim>
+        {
+            public UserStore(ProductDbContext context, IdentityErrorDescriber? describer = null) : base(context, describer)
+            {
+            }
+        }
+        public class AppRoleStore : RoleStore<Role, ProductDbContext, Guid, UserRole, RoleClaim>
+        {
+            public AppRoleStore(ProductDbContext context, IdentityErrorDescriber? describer = null) : base(context, describer)
+            {
+            }
+        }
         public static WebApplicationBuilder AddInfrastructure(this WebApplicationBuilder builder)
         {
             builder.Services.AddBuildingBlocksInfrastructure();
@@ -46,7 +59,7 @@ namespace Product.Infrastructure
                 options.AddInterceptors(sp.GetServices<ISaveChangesInterceptor>());
                 options.UseNpgsql(builder.Configuration.GetConnectionString("ProductDbConnection"));
             });
-            builder.Services.AddIdentityCore<User>().AddRoles<Role>().AddEntityFrameworkStores<ProductDbContext>();
+            builder.Services.AddIdentityCore<User>().AddRoles<Role>().AddUserStore<UserStore>().AddRoleStore<AppRoleStore>();
             var rabbitMqSettings = builder.Configuration.GetSection("RabbitMQ").Get<RabbitMQSettings>();
 
             builder.Services.AddMassTransit(x =>
@@ -54,13 +67,13 @@ namespace Product.Infrastructure
                 x.AddConsumer<OrderCreatedEventConsumer>();
                 x.AddConsumer<StockRollBackMessageConsumer>();
 
-                //x.AddEntityFrameworkOutbox<ProductDbContext>(o =>
-                //{
-                //    o.QueryDelay = TimeSpan.FromSeconds(1);
+                x.AddEntityFrameworkOutbox<ProductDbContext>(o =>
+                {
+                    o.QueryDelay = TimeSpan.FromSeconds(1);
 
-                //    o.UsePostgres();
-                //    o.UseBusOutbox();
-                //});
+                    o.UsePostgres();
+                    o.UseBusOutbox();
+                });
 
                 x.UsingRabbitMq((context, cfg) =>
                 {
@@ -72,13 +85,17 @@ namespace Product.Infrastructure
                     cfg.AutoStart = true;
                     cfg.ReceiveEndpoint(EventBusConstants.Queues.OrderCreatedEventQueueName, e =>
                     {
-                        e.ConfigureConsumer<OrderCreatedEventConsumer>(context);
+                        e.ConfigureConsumer<OrderCreatedEventConsumer>(context);                        
                     });
 
                     cfg.ReceiveEndpoint(EventBusConstants.Queues.StockRollBackMessageQueueName, e =>
                     {
                         e.ConfigureConsumer<StockRollBackMessageConsumer>(context);
                     });
+                });
+                x.AddConfigureEndpointsCallback((context, name, cfg) =>
+                {
+                    cfg.UseEntityFrameworkOutbox<ProductDbContext>(context);
                 });
             });
             builder.Services.AddScoped<IMassTransitService, MassTransitService>();

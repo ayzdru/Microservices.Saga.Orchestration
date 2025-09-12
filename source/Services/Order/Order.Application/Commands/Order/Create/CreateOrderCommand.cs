@@ -21,32 +21,31 @@ namespace Order.Application.Commands.Order.Create
         public Guid ProductId { get; set; }
         public int Count { get; set; }
     }
-    public record CreateOrderCommand : IRequest<ApiResult<string>>
+    public record CreateOrderCommand : IRequest<CreateOrderCommandResponse>
     {
         public Guid UserId { get; set; }
         public List<OrderItem> OrderItems { get; set; }
 
     }
-    public class CreateOrderCommandHandler : IRequestHandler<CreateOrderCommand, ApiResult<string>>
+    public record CreateOrderCommandResponse(ApiResult<string> ApiResult, CreateOrderMessage CreateOrderMessage);
+    public class CreateOrderCommandHandler : IRequestHandler<CreateOrderCommand, CreateOrderCommandResponse>
     {
         private readonly IApplicationDbContext _applicationDbContext; 
-        private readonly IMassTransitService _massTransitService;
         private readonly ILogger<CreateOrderCommandHandler> _logger;
         private readonly ApiGatewayService _apiGatewayService;
-        public CreateOrderCommandHandler(IApplicationDbContext applicationDbContext, IMassTransitService massTransitService, ILogger<CreateOrderCommandHandler> logger, ApiGatewayService apiGatewayService)
+        public CreateOrderCommandHandler(IApplicationDbContext applicationDbContext, ILogger<CreateOrderCommandHandler> logger, ApiGatewayService apiGatewayService)
         {
             _applicationDbContext = applicationDbContext;
-            _massTransitService = massTransitService;
             _logger = logger;
             _apiGatewayService = apiGatewayService;
         }
-        public async Task<ApiResult<string>> Handle(CreateOrderCommand request, CancellationToken cancellationToken)
+        public async Task<CreateOrderCommandResponse> Handle(CreateOrderCommand request, CancellationToken cancellationToken)
         {
             var productIds = request.OrderItems.Select(x => x.ProductId).ToList();
             var products = await _apiGatewayService.GetProductsByIdsAsync(productIds, cancellationToken);
             if(products==null || products.Count != request.OrderItems.Count)
             {
-                return new ApiResult<string>(false, "Order creation failed due to missing product details.");
+                return new CreateOrderCommandResponse(new ApiResult<string>(false, "Order creation failed due to missing product details."), null);
             }
             var newOrder = new Core.Entities.Order(request.UserId, OrderStatus.Pending, request.OrderItems.Select(item => new Core.Entities.OrderItem(item.ProductId, products.SingleOrDefault(p => p.Id == item.ProductId).Price, item.Count)).ToList());
            
@@ -66,11 +65,10 @@ namespace Order.Application.Commands.Order.Create
                 }).ToList()
             };
 
-            await _massTransitService.Send<ICreateOrderMessage>(createOrderMessage, EventBusConstants.Queues.CreateOrderMessageQueueName);
 
             _logger.LogInformation("Order with Id: {NewOrderId} created successfully", newOrder.Id);
 
-            return new ApiResult<string>(true, "Order created successfully");
+            return new CreateOrderCommandResponse(new ApiResult<string>(true, "Order created successfully"), createOrderMessage);
         }
     }
 }

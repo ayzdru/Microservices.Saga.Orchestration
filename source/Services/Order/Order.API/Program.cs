@@ -50,9 +50,9 @@ namespace Order.API
             var app = builder.Build();
             using (var scope = app.Services.CreateScope())
             {
-                var initializer = scope.ServiceProvider.GetRequiredService<OrderDbContextInitializer>();
+                var  initializer = scope.ServiceProvider.GetRequiredService<OrderDbContextInitializer>();
                 await initializer.InitialiseAsync();
-                await initializer.SeedAsync();
+                await initializer.SeedAsync();               
             }
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())

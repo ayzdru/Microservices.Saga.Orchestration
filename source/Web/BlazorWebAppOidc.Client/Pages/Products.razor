@@ -10,7 +10,7 @@
 <h3>Products</h3>
 
 <button class="btn btn-primary" @onclick="ShowCreateModal">Create Product</button>
-<button class="btn btn-success ms-2" @onclick="CreateOrder" disabled="@(!selectedProductIds.Any())">Create Order</button>
+<button class="btn btn-success ms-2" @onclick="CreateOrder" disabled="@(!selectedProductIds.Any() || isCreateOrderButtonDisabled)">Create Order</button>
 
 @if (products == null)
 {
@@ -249,6 +249,7 @@ else
     void IDisposable.Dispose() => persistingSubscription.Dispose();
     bool isOrderSuccessModalOpen = false;
     bool isOrderErrorModalOpen = false;
+    bool isCreateOrderButtonDisabled = false;
     string orderErrorMessage = string.Empty;
 
     void CloseOrderSuccessModal()
@@ -287,12 +288,14 @@ else
 
         try
         {
+            isCreateOrderButtonDisabled = true;
             var result = await ApiGatewayClient.CreateOrderAsync(order);
 
             if (result.Success == true)
             {
                 isOrderSuccessModalOpen = true;
                 selectedProductIdsMap = products?.ToDictionary(p => p.Id, p => false) ?? new();
+                await LoadProducts();
             }
             else
             {
@@ -305,5 +308,6 @@ else
             orderErrorMessage = ex.Message;
             isOrderErrorModalOpen = true;
         }
+        isCreateOrderButtonDisabled = false;
     }
 }

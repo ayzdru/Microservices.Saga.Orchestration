@@ -12,7 +12,7 @@ using Payment.Infrastructure.Data;
 namespace Payment.Infrastructure.Data.Migrations
 {
     [DbContext(typeof(PaymentDbContext))]
-    [Migration("20250910231952_Initial")]
+    [Migration("20250912031700_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -49,7 +49,7 @@ namespace Payment.Infrastructure.Data.Migrations
                         .IsUnique()
                         .HasDatabaseName("RoleNameIndex");
 
-                    b.ToTable("Roles", (string)null);
+                    b.ToTable("Roles");
                 });
 
             modelBuilder.Entity("BuildingBlocks.Core.Entities.RoleClaim", b =>
@@ -73,7 +73,7 @@ namespace Payment.Infrastructure.Data.Migrations
 
                     b.HasIndex("RoleId");
 
-                    b.ToTable("RoleClaims", (string)null);
+                    b.ToTable("RoleClaims");
                 });
 
             modelBuilder.Entity("BuildingBlocks.Core.Entities.User", b =>
@@ -138,7 +138,7 @@ namespace Payment.Infrastructure.Data.Migrations
                         .IsUnique()
                         .HasDatabaseName("UserNameIndex");
 
-                    b.ToTable("Users", (string)null);
+                    b.ToTable("Users");
                 });
 
             modelBuilder.Entity("BuildingBlocks.Core.Entities.UserClaim", b =>
@@ -162,16 +162,18 @@ namespace Payment.Infrastructure.Data.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("UserClaims", (string)null);
+                    b.ToTable("UserClaims");
                 });
 
             modelBuilder.Entity("BuildingBlocks.Core.Entities.UserLogin", b =>
                 {
                     b.Property<string>("LoginProvider")
-                        .HasColumnType("text");
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
 
                     b.Property<string>("ProviderKey")
-                        .HasColumnType("text");
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
 
                     b.Property<string>("ProviderDisplayName")
                         .HasColumnType("text");
@@ -183,7 +185,7 @@ namespace Payment.Infrastructure.Data.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("UserLogins", (string)null);
+                    b.ToTable("UserLogins");
                 });
 
             modelBuilder.Entity("BuildingBlocks.Core.Entities.UserRole", b =>
@@ -198,7 +200,7 @@ namespace Payment.Infrastructure.Data.Migrations
 
                     b.HasIndex("RoleId");
 
-                    b.ToTable("UserRoles", (string)null);
+                    b.ToTable("UserRoles");
                 });
 
             modelBuilder.Entity("BuildingBlocks.Core.Entities.UserToken", b =>
@@ -207,17 +209,19 @@ namespace Payment.Infrastructure.Data.Migrations
                         .HasColumnType("uuid");
 
                     b.Property<string>("LoginProvider")
-                        .HasColumnType("text");
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
 
                     b.Property<string>("Name")
-                        .HasColumnType("text");
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
 
                     b.Property<string>("Value")
                         .HasColumnType("text");
 
                     b.HasKey("UserId", "LoginProvider", "Name");
 
-                    b.ToTable("UserTokens", (string)null);
+                    b.ToTable("UserTokens");
                 });
 
             modelBuilder.Entity("MassTransit.EntityFrameworkCoreIntegration.InboxState", b =>
@@ -390,53 +394,65 @@ namespace Payment.Infrastructure.Data.Migrations
 
             modelBuilder.Entity("BuildingBlocks.Core.Entities.RoleClaim", b =>
                 {
-                    b.HasOne("BuildingBlocks.Core.Entities.Role", null)
-                        .WithMany()
+                    b.HasOne("BuildingBlocks.Core.Entities.Role", "Role")
+                        .WithMany("RoleClaims")
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Role");
                 });
 
             modelBuilder.Entity("BuildingBlocks.Core.Entities.UserClaim", b =>
                 {
-                    b.HasOne("BuildingBlocks.Core.Entities.User", null)
-                        .WithMany()
+                    b.HasOne("BuildingBlocks.Core.Entities.User", "User")
+                        .WithMany("Claims")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("BuildingBlocks.Core.Entities.UserLogin", b =>
                 {
-                    b.HasOne("BuildingBlocks.Core.Entities.User", null)
-                        .WithMany()
+                    b.HasOne("BuildingBlocks.Core.Entities.User", "User")
+                        .WithMany("Logins")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("BuildingBlocks.Core.Entities.UserRole", b =>
                 {
-                    b.HasOne("BuildingBlocks.Core.Entities.Role", null)
-                        .WithMany()
+                    b.HasOne("BuildingBlocks.Core.Entities.Role", "Role")
+                        .WithMany("UserRoles")
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("BuildingBlocks.Core.Entities.User", null)
-                        .WithMany()
+                    b.HasOne("BuildingBlocks.Core.Entities.User", "User")
+                        .WithMany("UserRoles")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Role");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("BuildingBlocks.Core.Entities.UserToken", b =>
                 {
-                    b.HasOne("BuildingBlocks.Core.Entities.User", null)
-                        .WithMany()
+                    b.HasOne("BuildingBlocks.Core.Entities.User", "User")
+                        .WithMany("Tokens")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("MassTransit.EntityFrameworkCoreIntegration.OutboxMessage", b =>
@@ -449,6 +465,24 @@ namespace Payment.Infrastructure.Data.Migrations
                         .WithMany()
                         .HasForeignKey("InboxMessageId", "InboxConsumerId")
                         .HasPrincipalKey("MessageId", "ConsumerId");
+                });
+
+            modelBuilder.Entity("BuildingBlocks.Core.Entities.Role", b =>
+                {
+                    b.Navigation("RoleClaims");
+
+                    b.Navigation("UserRoles");
+                });
+
+            modelBuilder.Entity("BuildingBlocks.Core.Entities.User", b =>
+                {
+                    b.Navigation("Claims");
+
+                    b.Navigation("Logins");
+
+                    b.Navigation("Tokens");
+
+                    b.Navigation("UserRoles");
                 });
 #pragma warning restore 612, 618
         }

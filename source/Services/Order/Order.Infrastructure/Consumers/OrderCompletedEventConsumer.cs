@@ -20,6 +20,7 @@ public class OrderCompletedEventConsumer : IConsumer<IOrderCompletedEvent>
 
     public async Task Consume(ConsumeContext<IOrderCompletedEvent> context)
     {
+
         var order = await _context.Orders.FindAsync(context.Message.OrderId);
 
         if (order != null)

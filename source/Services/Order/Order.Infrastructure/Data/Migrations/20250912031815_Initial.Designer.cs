@@ -5,14 +5,14 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
-using Product.Infrastructure.Data;
+using Order.Infrastructure.Data;
 
 #nullable disable
 
-namespace Product.Infrastructure.Data.Migrations
+namespace Order.Infrastructure.Data.Migrations
 {
-    [DbContext(typeof(ProductDbContext))]
-    [Migration("20250910231915_Initial")]
+    [DbContext(typeof(OrderDbContext))]
+    [Migration("20250912031815_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -49,7 +49,7 @@ namespace Product.Infrastructure.Data.Migrations
                         .IsUnique()
                         .HasDatabaseName("RoleNameIndex");
 
-                    b.ToTable("Roles", (string)null);
+                    b.ToTable("Roles");
                 });
 
             modelBuilder.Entity("BuildingBlocks.Core.Entities.RoleClaim", b =>
@@ -73,7 +73,7 @@ namespace Product.Infrastructure.Data.Migrations
 
                     b.HasIndex("RoleId");
 
-                    b.ToTable("RoleClaims", (string)null);
+                    b.ToTable("RoleClaims");
                 });
 
             modelBuilder.Entity("BuildingBlocks.Core.Entities.User", b =>
@@ -138,7 +138,7 @@ namespace Product.Infrastructure.Data.Migrations
                         .IsUnique()
                         .HasDatabaseName("UserNameIndex");
 
-                    b.ToTable("Users", (string)null);
+                    b.ToTable("Users");
                 });
 
             modelBuilder.Entity("BuildingBlocks.Core.Entities.UserClaim", b =>
@@ -162,16 +162,18 @@ namespace Product.Infrastructure.Data.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("UserClaims", (string)null);
+                    b.ToTable("UserClaims");
                 });
 
             modelBuilder.Entity("BuildingBlocks.Core.Entities.UserLogin", b =>
                 {
                     b.Property<string>("LoginProvider")
-                        .HasColumnType("text");
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
 
                     b.Property<string>("ProviderKey")
-                        .HasColumnType("text");
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
 
                     b.Property<string>("ProviderDisplayName")
                         .HasColumnType("text");
@@ -183,7 +185,7 @@ namespace Product.Infrastructure.Data.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("UserLogins", (string)null);
+                    b.ToTable("UserLogins");
                 });
 
             modelBuilder.Entity("BuildingBlocks.Core.Entities.UserRole", b =>
@@ -198,7 +200,7 @@ namespace Product.Infrastructure.Data.Migrations
 
                     b.HasIndex("RoleId");
 
-                    b.ToTable("UserRoles", (string)null);
+                    b.ToTable("UserRoles");
                 });
 
             modelBuilder.Entity("BuildingBlocks.Core.Entities.UserToken", b =>
@@ -207,17 +209,19 @@ namespace Product.Infrastructure.Data.Migrations
                         .HasColumnType("uuid");
 
                     b.Property<string>("LoginProvider")
-                        .HasColumnType("text");
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
 
                     b.Property<string>("Name")
-                        .HasColumnType("text");
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
 
                     b.Property<string>("Value")
                         .HasColumnType("text");
 
                     b.HasKey("UserId", "LoginProvider", "Name");
 
-                    b.ToTable("UserTokens", (string)null);
+                    b.ToTable("UserTokens");
                 });
 
             modelBuilder.Entity("MassTransit.EntityFrameworkCoreIntegration.InboxState", b =>
@@ -388,11 +392,71 @@ namespace Product.Infrastructure.Data.Migrations
                     b.ToTable("OutboxState");
                 });
 
-            modelBuilder.Entity("Product.Core.Entities.Product", b =>
+            modelBuilder.Entity("Order.Core.Entities.Order", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
+
+                    b.Property<Guid?>("CreatedByUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("DeletedByUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("DeletedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ErrorMessage")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<uint>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid?>("UpdatedByUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("UpdatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedByUserId");
+
+                    b.HasIndex("DeletedByUserId");
+
+                    b.HasIndex("UpdatedByUserId");
+
+                    b.ToTable("Orders");
+                });
+
+            modelBuilder.Entity("Order.Core.Entities.OrderItem", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("Count")
+                        .HasColumnType("integer");
 
                     b.Property<Guid?>("CreatedByUserId")
                         .HasColumnType("uuid");
@@ -412,22 +476,20 @@ namespace Product.Infrastructure.Data.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)");
+                    b.Property<Guid>("OrderId")
+                        .HasColumnType("uuid");
 
                     b.Property<decimal>("Price")
                         .HasColumnType("numeric");
+
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("uuid");
 
                     b.Property<uint>("RowVersion")
                         .IsConcurrencyToken()
                         .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("xid")
                         .HasColumnName("xmin");
-
-                    b.Property<int>("Stock")
-                        .HasColumnType("integer");
 
                     b.Property<Guid?>("UpdatedByUserId")
                         .HasColumnType("uuid");
@@ -441,60 +503,74 @@ namespace Product.Infrastructure.Data.Migrations
 
                     b.HasIndex("DeletedByUserId");
 
+                    b.HasIndex("OrderId");
+
                     b.HasIndex("UpdatedByUserId");
 
-                    b.ToTable("Products");
+                    b.ToTable("OrderItems");
                 });
 
             modelBuilder.Entity("BuildingBlocks.Core.Entities.RoleClaim", b =>
                 {
-                    b.HasOne("BuildingBlocks.Core.Entities.Role", null)
-                        .WithMany()
+                    b.HasOne("BuildingBlocks.Core.Entities.Role", "Role")
+                        .WithMany("RoleClaims")
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Role");
                 });
 
             modelBuilder.Entity("BuildingBlocks.Core.Entities.UserClaim", b =>
                 {
-                    b.HasOne("BuildingBlocks.Core.Entities.User", null)
-                        .WithMany()
+                    b.HasOne("BuildingBlocks.Core.Entities.User", "User")
+                        .WithMany("Claims")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("BuildingBlocks.Core.Entities.UserLogin", b =>
                 {
-                    b.HasOne("BuildingBlocks.Core.Entities.User", null)
-                        .WithMany()
+                    b.HasOne("BuildingBlocks.Core.Entities.User", "User")
+                        .WithMany("Logins")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("BuildingBlocks.Core.Entities.UserRole", b =>
                 {
-                    b.HasOne("BuildingBlocks.Core.Entities.Role", null)
-                        .WithMany()
+                    b.HasOne("BuildingBlocks.Core.Entities.Role", "Role")
+                        .WithMany("UserRoles")
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("BuildingBlocks.Core.Entities.User", null)
-                        .WithMany()
+                    b.HasOne("BuildingBlocks.Core.Entities.User", "User")
+                        .WithMany("UserRoles")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Role");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("BuildingBlocks.Core.Entities.UserToken", b =>
                 {
-                    b.HasOne("BuildingBlocks.Core.Entities.User", null)
-                        .WithMany()
+                    b.HasOne("BuildingBlocks.Core.Entities.User", "User")
+                        .WithMany("Tokens")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("MassTransit.EntityFrameworkCoreIntegration.OutboxMessage", b =>
@@ -509,7 +585,7 @@ namespace Product.Infrastructure.Data.Migrations
                         .HasPrincipalKey("MessageId", "ConsumerId");
                 });
 
-            modelBuilder.Entity("Product.Core.Entities.Product", b =>
+            modelBuilder.Entity("Order.Core.Entities.Order", b =>
                 {
                     b.HasOne("BuildingBlocks.Core.Entities.User", "CreatedByUser")
                         .WithMany()
@@ -530,6 +606,60 @@ namespace Product.Infrastructure.Data.Migrations
                     b.Navigation("DeletedByUser");
 
                     b.Navigation("UpdatedByUser");
+                });
+
+            modelBuilder.Entity("Order.Core.Entities.OrderItem", b =>
+                {
+                    b.HasOne("BuildingBlocks.Core.Entities.User", "CreatedByUser")
+                        .WithMany()
+                        .HasForeignKey("CreatedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("BuildingBlocks.Core.Entities.User", "DeletedByUser")
+                        .WithMany()
+                        .HasForeignKey("DeletedByUserId");
+
+                    b.HasOne("Order.Core.Entities.Order", "Order")
+                        .WithMany("OrderItems")
+                        .HasForeignKey("OrderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("BuildingBlocks.Core.Entities.User", "UpdatedByUser")
+                        .WithMany()
+                        .HasForeignKey("UpdatedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("CreatedByUser");
+
+                    b.Navigation("DeletedByUser");
+
+                    b.Navigation("Order");
+
+                    b.Navigation("UpdatedByUser");
+                });
+
+            modelBuilder.Entity("BuildingBlocks.Core.Entities.Role", b =>
+                {
+                    b.Navigation("RoleClaims");
+
+                    b.Navigation("UserRoles");
+                });
+
+            modelBuilder.Entity("BuildingBlocks.Core.Entities.User", b =>
+                {
+                    b.Navigation("Claims");
+
+                    b.Navigation("Logins");
+
+                    b.Navigation("Tokens");
+
+                    b.Navigation("UserRoles");
+                });
+
+            modelBuilder.Entity("Order.Core.Entities.Order", b =>
+                {
+                    b.Navigation("OrderItems");
                 });
 #pragma warning restore 612, 618
         }

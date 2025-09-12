@@ -13,15 +13,6 @@ using Serilog;
 using Serilog.Core;
 using Serilog.Events;
 
-Log.Logger = new LoggerConfiguration()
-.MinimumLevel.Information()
-.MinimumLevel.Override("MassTransit", LogEventLevel.Debug)
-.MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
-.MinimumLevel.Override("Microsoft.EntityFrameworkCore", LogEventLevel.Warning)
-.MinimumLevel.Override("Microsoft.EntityFrameworkCore.Database.Command", LogEventLevel.Warning)
-.Enrich.FromLogContext()
-.WriteTo.Console()
-.CreateLogger();
 
 HostApplicationBuilderSettings settings = new()
 {
@@ -52,13 +43,9 @@ builder.AddInfrastructure().AddServices();
 
 using IHost host = builder.Build();
 using (var scope = host.Services.CreateScope())
-{
-    var identityInitializer = scope.ServiceProvider.GetRequiredService<OrchestrationDbContextInitializer>();
-    await identityInitializer.InitialiseAsync();
-    await identityInitializer.SeedAsync();
-
-    var sagaInitializer = scope.ServiceProvider.GetRequiredService<OrchestrationSagaDbContextInitializer>();
-    await sagaInitializer.InitialiseAsync();
-    await sagaInitializer.SeedAsync();
+{   
+    var initializer = scope.ServiceProvider.GetRequiredService<OrchestrationDbContextInitializer>();
+    await initializer.InitialiseAsync();
+    await initializer.SeedAsync();
 }
 await host.RunAsync();

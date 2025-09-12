@@ -1,14 +1,4 @@
 {
-  "ConnectionStrings": {
-    "OrchestrationDbConnection": "Server=localhost;Port=5432;Database=Orchestration;User Id=administrator;Password=Password1@_;Pooling=true;MaxPoolSize=100;"
-  },
-  "RabbitMQ": {
-    "Host": "localhost",
-    "Port": 5672,
-    "VirtualHost": "/",
-    "Username": "admin",
-    "Password": "Password1"
-  },
   "Serilog": {
     "Using": [ "Serilog.Sinks.Console" ],
     "MinimumLevel": {
@@ -23,12 +13,23 @@
     },
     "WriteTo": [
       {
-        "Name": "Console"        
+        "Name": "Console"
       }
     ],
     "Enrich": [ "FromLogContext", "WithMachineName" ],
     "Properties": {
       "Application": "Orchestration.Service"
     }
+  },
+  "ConnectionStrings": {
+    "OrchestrationDbConnection": "Server=localhost;Port=5432;Database=Orchestration;User Id=administrator;Password=Password1@_;Pooling=true;MaxPoolSize=100;"
+  },
+  "RabbitMQ": {
+    "Host": "localhost",
+    "Port": 5672,
+    "VirtualHost": "/",
+    "Username": "admin",
+    "Password": "Password1"
   }
+
 }

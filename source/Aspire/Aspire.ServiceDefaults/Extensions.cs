@@ -10,6 +10,8 @@ using Microsoft.Extensions.Logging;
 using OpenTelemetry;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Trace;
+using Serilog;
+using Serilog.Core;
 using HealthStatus = Microsoft.Extensions.Diagnostics.HealthChecks.HealthStatus;
 
 namespace Microsoft.Extensions.Hosting;
@@ -24,6 +26,15 @@ public static class Extensions
 
     public static TBuilder AddServiceDefaults<TBuilder>(this TBuilder builder) where TBuilder : IHostApplicationBuilder
     {
+        builder.Services.AddLogging(config =>
+        {
+            config.ClearProviders();
+            Logger logger = new LoggerConfiguration()
+                      .ReadFrom.Configuration(builder.Configuration)
+                      .CreateLogger();
+
+            config.AddSerilog(logger);
+        });
 
         ConsulSettings consulSettings = new ConsulSettings();
 
@@ -193,7 +204,7 @@ public static class Extensions
     {
         ConsulSettings consulSettings = app.ApplicationServices.GetRequiredService<ConsulSettings>();
         IConsulClient consulClient = app.ApplicationServices.GetRequiredService<IConsulClient>();
-        ILogger logger = app.ApplicationServices.GetRequiredService<ILoggerFactory>().CreateLogger("ConsulServiceRegistryExtension");
+        Logging.ILogger logger = app.ApplicationServices.GetRequiredService<ILoggerFactory>().CreateLogger("ConsulServiceRegistryExtension");
         IHostApplicationLifetime lifetime = app.ApplicationServices.GetRequiredService<IHostApplicationLifetime>();
 
         AgentServiceRegistration registration = new AgentServiceRegistration()

@@ -10,6 +10,12 @@ namespace Product.Application.Interfaces
     {
         DbSet<Product.Core.Entities.Product> Products { get; set; }
         DbSet<User> Users { get; set; }
+        DbSet<Role> Roles { get; set; }
+        DbSet<RoleClaim> RoleClaims { get; set; }
+        DbSet<UserClaim> UserClaims { get; set; }
+        DbSet<UserLogin> UserLogins { get; set; }
+        DbSet<UserRole> UserRoles { get; set; }
+        DbSet<UserToken> UserTokens { get; set; }
         DatabaseFacade Database { get; }
         Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
     }

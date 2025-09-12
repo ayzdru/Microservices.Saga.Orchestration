@@ -218,8 +218,8 @@ namespace Order.Infrastructure.Data.Migrations
                 name: "UserLogins",
                 columns: table => new
                 {
-                    LoginProvider = table.Column<string>(type: "text", nullable: false),
-                    ProviderKey = table.Column<string>(type: "text", nullable: false),
+                    LoginProvider = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
+                    ProviderKey = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
                     ProviderDisplayName = table.Column<string>(type: "text", nullable: true),
                     UserId = table.Column<Guid>(type: "uuid", nullable: false)
                 },
@@ -263,8 +263,8 @@ namespace Order.Infrastructure.Data.Migrations
                 columns: table => new
                 {
                     UserId = table.Column<Guid>(type: "uuid", nullable: false),
-                    LoginProvider = table.Column<string>(type: "text", nullable: false),
-                    Name = table.Column<string>(type: "text", nullable: false),
+                    LoginProvider = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
+                    Name = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
                     Value = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
@@ -279,7 +279,7 @@ namespace Order.Infrastructure.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "OrderItem",
+                name: "OrderItems",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
@@ -299,26 +299,26 @@ namespace Order.Infrastructure.Data.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_OrderItem", x => x.Id);
+                    table.PrimaryKey("PK_OrderItems", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_OrderItem_Orders_OrderId",
+                        name: "FK_OrderItems_Orders_OrderId",
                         column: x => x.OrderId,
                         principalTable: "Orders",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_OrderItem_Users_CreatedByUserId",
+                        name: "FK_OrderItems_Users_CreatedByUserId",
                         column: x => x.CreatedByUserId,
                         principalTable: "Users",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_OrderItem_Users_DeletedByUserId",
+                        name: "FK_OrderItems_Users_DeletedByUserId",
                         column: x => x.DeletedByUserId,
                         principalTable: "Users",
                         principalColumn: "Id");
                     table.ForeignKey(
-                        name: "FK_OrderItem_Users_UpdatedByUserId",
+                        name: "FK_OrderItems_Users_UpdatedByUserId",
                         column: x => x.UpdatedByUserId,
                         principalTable: "Users",
                         principalColumn: "Id",
@@ -331,23 +331,23 @@ namespace Order.Infrastructure.Data.Migrations
                 column: "Delivered");
 
             migrationBuilder.CreateIndex(
-                name: "IX_OrderItem_CreatedByUserId",
-                table: "OrderItem",
+                name: "IX_OrderItems_CreatedByUserId",
+                table: "OrderItems",
                 column: "CreatedByUserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_OrderItem_DeletedByUserId",
-                table: "OrderItem",
+                name: "IX_OrderItems_DeletedByUserId",
+                table: "OrderItems",
                 column: "DeletedByUserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_OrderItem_OrderId",
-                table: "OrderItem",
+                name: "IX_OrderItems_OrderId",
+                table: "OrderItems",
                 column: "OrderId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_OrderItem_UpdatedByUserId",
-                table: "OrderItem",
+                name: "IX_OrderItems_UpdatedByUserId",
+                table: "OrderItems",
                 column: "UpdatedByUserId");
 
             migrationBuilder.CreateIndex(
@@ -434,7 +434,7 @@ namespace Order.Infrastructure.Data.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "OrderItem");
+                name: "OrderItems");
 
             migrationBuilder.DropTable(
                 name: "OutboxMessage");
