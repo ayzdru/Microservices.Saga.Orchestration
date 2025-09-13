@@ -71,8 +71,10 @@ namespace Payment.Infrastructure
                         h.Password(rabbitMqSettings.Password);
                     });
                     cfg.AutoStart = true;
-                    cfg.ConfigureEndpoints(context);
-                   
+                    cfg.ReceiveEndpoint(EventBusConstants.Queues.PaymentUserRegisteredEventQueueName, e =>
+                    {
+                        e.ConfigureConsumer<PaymentUserRegisteredEventConsumer>(context);
+                    });
                     cfg.ReceiveEndpoint(EventBusConstants.Queues.CompletePaymentMessageQueueName, e =>
                     {
                         e.ConfigureConsumer<CompletePaymentMessageConsumer>(context);

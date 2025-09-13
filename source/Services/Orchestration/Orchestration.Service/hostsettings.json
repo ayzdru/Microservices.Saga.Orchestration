@@ -24,6 +24,10 @@
   "ConnectionStrings": {
     "OrchestrationDbConnection": "Server=localhost;Port=5432;Database=Orchestration;User Id=postgres;Password=postgres;Pooling=true;MaxPoolSize=100;"
   },
+  "MongoDb": {
+    "ConnectionString": "mongodb://admin:admin@localhost:27017/?directConnection=true&replicaSet=rs0",
+    "Database": "SagaOrchestrationDb"
+  },
   "RabbitMQ": {
     "Host": "localhost",
     "Port": 5672,

@@ -1,8 +1,7 @@
-﻿using BuildingBlocks.EventBus.Interfaces.User;
-
+﻿
 namespace BuildingBlocks.EventBus.Events.User;
 
-public class UserRegisteredEvent : IUserRegisteredEvent
+public class UserRegisteredEvent
 {
     public Guid UserId { get;set; }
     public string UserName { get;set; }

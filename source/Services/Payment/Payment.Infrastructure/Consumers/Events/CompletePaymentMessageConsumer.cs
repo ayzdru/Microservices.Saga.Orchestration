@@ -1,13 +1,12 @@
 ﻿
 using BuildingBlocks.EventBus.Events.Payment;
-using BuildingBlocks.EventBus.Interfaces.Payment;
 using BuildingBlocks.EventBus.Messages.Payment;
 using MassTransit;
 using Microsoft.Extensions.Logging;
 
 namespace Payment.Infrastructure.Consumers.Events;
 
-public class CompletePaymentMessageConsumer : IConsumer<IPaymentCompleteMessage>
+public class CompletePaymentMessageConsumer : IConsumer<PaymentCompleteMessage>
 {
     private readonly ILogger<CompletePaymentMessageConsumer> _logger;
 
@@ -19,7 +18,7 @@ public class CompletePaymentMessageConsumer : IConsumer<IPaymentCompleteMessage>
         _publishEndpoint = publishEndpoint;
     }
 
-    public async Task Consume(ConsumeContext<IPaymentCompleteMessage> context)
+    public async Task Consume(ConsumeContext<PaymentCompleteMessage> context)
     {
         // todo payment from stripe service
         var paymentSuccess = DateTime.UtcNow.Second % 2 == 0;

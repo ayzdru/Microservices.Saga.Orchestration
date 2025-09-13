@@ -1,8 +1,7 @@
-﻿using BuildingBlocks.EventBus.Interfaces.Payment;
-
+﻿
 namespace BuildingBlocks.EventBus.Events.Payment;
 
-public class PaymentCompletedEvent : IPaymentCompletedEvent
+public class PaymentCompletedEvent
 {
     public Guid CorrelationId { get; set; }
 }

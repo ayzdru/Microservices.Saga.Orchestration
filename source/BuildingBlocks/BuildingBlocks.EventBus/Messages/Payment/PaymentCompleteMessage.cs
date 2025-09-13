@@ -1,9 +1,8 @@
-﻿using BuildingBlocks.EventBus.Interfaces.Payment;
-using BuildingBlocks.EventBus.Models.Order;
+﻿using BuildingBlocks.EventBus.Models.Order;
 
 namespace BuildingBlocks.EventBus.Messages.Payment;
 
-public class PaymentCompleteMessage : IPaymentCompleteMessage
+public class PaymentCompleteMessage
 {
     public Guid CorrelationId { get; set; }
     public Guid UserId { get; set; }

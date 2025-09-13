@@ -1,10 +1,9 @@
 using System.Collections.Generic;
-using BuildingBlocks.EventBus.Interfaces.Order;
 using BuildingBlocks.EventBus.Models.Order;
 
 namespace BuildingBlocks.EventBus.Messages.Order;
 
-public class CreateOrderMessage : ICreateOrderMessage
+public class CreateOrderMessage
 {
     public CreateOrderMessage()
     {

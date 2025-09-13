@@ -1,5 +1,5 @@
 ﻿using BuildingBlocks.Core.Entities;
-using BuildingBlocks.EventBus.Interfaces.User;
+using BuildingBlocks.EventBus.Events.User;
 using BuildingBlocks.MassTransit.Consumers.Events;
 using MassTransit;
 using Microsoft.AspNetCore.Identity;
@@ -21,7 +21,7 @@ namespace Product.Infrastructure.Consumers.Events
         {
 
         }
-        public override Task Consume(ConsumeContext<IUserRegisteredEvent> context)
+        public override Task Consume(ConsumeContext<UserRegisteredEvent> context)
         {
             return base.Consume(context);
         }

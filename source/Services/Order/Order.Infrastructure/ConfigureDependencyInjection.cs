@@ -69,7 +69,10 @@ namespace Order.Infrastructure
                         h.Password(rabbitMqSettings.Password);
                     });
                     cfg.AutoStart = true;
-                    cfg.ConfigureEndpoints(context);                   
+                    cfg.ReceiveEndpoint(EventBusConstants.Queues.OrderUserRegisteredEventQueueName, e =>
+                    {
+                        e.ConfigureConsumer<OrderUserRegisteredEventConsumer>(context);
+                    });
                     cfg.ReceiveEndpoint(EventBusConstants.Queues.OrderCompletedEventQueueName, x =>
                     {
                         x.ConfigureConsumer<OrderCompletedEventConsumer>(context);

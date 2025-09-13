@@ -1,12 +1,12 @@
 ﻿using BuildingBlocks.Core.Entities;
-using BuildingBlocks.EventBus.Interfaces.User;
+using BuildingBlocks.EventBus.Events.User;
 using MassTransit;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 namespace BuildingBlocks.MassTransit.Consumers.Events;
 
-public abstract class UserRegisteredEventConsumer : IConsumer<IUserRegisteredEvent>
+public abstract class UserRegisteredEventConsumer : IConsumer<UserRegisteredEvent>
 {
     private readonly ILogger<UserRegisteredEventConsumer> _logger;
     private readonly UserManager<User> _userManager;
@@ -16,7 +16,7 @@ public abstract class UserRegisteredEventConsumer : IConsumer<IUserRegisteredEve
         _userManager = userManager;
     }
 
-    public virtual async Task Consume(ConsumeContext<IUserRegisteredEvent> context)
+    public virtual async Task Consume(ConsumeContext<UserRegisteredEvent> context)
     {
 
         var identityUser = new User

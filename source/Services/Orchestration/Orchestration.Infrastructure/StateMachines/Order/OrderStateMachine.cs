@@ -1,7 +1,7 @@
 ﻿using BuildingBlocks.EventBus.Events.Order;
-using BuildingBlocks.EventBus.Interfaces.Order;
-using BuildingBlocks.EventBus.Interfaces.Payment;
-using BuildingBlocks.EventBus.Interfaces.Product;
+using BuildingBlocks.EventBus.Events.Payment;
+using BuildingBlocks.EventBus.Events.Product;
+using BuildingBlocks.EventBus.Messages.Order;
 using BuildingBlocks.EventBus.Messages.Payment;
 using BuildingBlocks.EventBus.Messages.Product;
 using MassTransit;
@@ -15,13 +15,13 @@ public class OrderStateMachine : MassTransitStateMachine<OrderState>
     private readonly ILogger _logger;
 
     // Commands
-    private Event<ICreateOrderMessage> CreateOrderMessage { get; set; }
+    private Event<CreateOrderMessage> CreateOrderMessage { get; set; }
 
     // Events
-    public Event<IStockReservedEvent> StockReservedEvent { get; set; }
-    public Event<IStockReservationFailedEvent> StockReservationFailedEvent { get; set; }
-    public Event<IPaymentCompletedEvent> PaymentCompletedEvent { get; set; }
-    public Event<IPaymentFailedEvent> PaymentFailedEvent { get; set; }
+    public Event<StockReservedEvent> StockReservedEvent { get; set; }
+    public Event<StockReservationFailedEvent> StockReservationFailedEvent { get; set; }
+    public Event<PaymentCompletedEvent> PaymentCompletedEvent { get; set; }
+    public Event<PaymentFailedEvent> PaymentFailedEvent { get; set; }
 
     // States
     public State OrderCreated { get; set; }

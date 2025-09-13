@@ -66,7 +66,10 @@ namespace Orchestration.Infrastructure
                         h.Username(rabbitMqSettings.Username);
                         h.Password(rabbitMqSettings.Password);
                     });
-                    cfg.ConfigureEndpoints(context);                    
+                    cfg.ReceiveEndpoint(EventBusConstants.Queues.OrchestrationUserRegisteredEventQueueName, e =>
+                    {
+                        e.ConfigureConsumer<OrchestrationUserRegisteredEventConsumer>(context);
+                    });
                     cfg.ReceiveEndpoint(EventBusConstants.Queues.CreateOrderMessageQueueName, e => { e.ConfigureSaga<OrderState>(context); });
                 });
                 x.AddEntityFrameworkOutbox<OrchestrationDbContext>(o =>

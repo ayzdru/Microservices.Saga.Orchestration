@@ -1,3 +1,4 @@
+using Aspire.AppHost;
 using Aspire.Hosting;
 
 var builder = DistributedApplication.CreateBuilder(args);
@@ -16,7 +17,6 @@ var postgres = builder.AddPostgres("postgres", postgresUsername, postgresPasswor
             e.IsProxied = false;
             e.IsExternal = false;
         })
-    //.WithEndpoint(name: "postgresendpoint", scheme: "tcp", port: 5432, targetPort: 5432, isProxied: false)
     .WithLifetime(ContainerLifetime.Persistent)
     .WithPgAdmin(pgAdmin =>
     pgAdmin.WithContainerName("pgAdmin")
@@ -42,6 +42,44 @@ var paymentDB = postgres.AddDatabase("Payment");
 var productDB = postgres.AddDatabase("Product");
 var orchestrationDB = postgres.AddDatabase("Orchestration");
 
+
+
+//MONGODB With REPLICASET
+//var mongoUsername = builder.AddParameter("mongo-user", "admin");
+//var mongoPassword = builder.AddParameter("mongo-password", "admin");
+//var mongo = builder
+//    .AddMongoDBWithReplicaSet("mongo", 27017, mongoUsername, mongoPassword)
+//    .WithContainerName("mongo")
+//    .WithVolume("mongo_data")
+//    .WithImageTag("8.0")
+//    .WithEndpoint(
+//        "tcp",
+//        e =>
+//        {
+//            e.Port = 27017;
+//            e.TargetPort = 27017;
+//            e.IsProxied = false;
+//            e.IsExternal = false;
+//        })
+//    .WithMongoExpress(x => x.WithContainerName("mongo-express").WithImageTag("1.0.2").WithVolume("mongoexpress_data", "/data/db").WithLifetime(ContainerLifetime.Persistent)
+//    .WithEndpoint(
+//        "http",
+//        e =>
+//        {
+//            e.Port = 8081;
+//            e.TargetPort = 8081;
+//            e.IsProxied = false;
+//            e.IsExternal = false;
+//        }))
+//    .WithLifetime(ContainerLifetime.Persistent)
+//    .WithReplicaSet("Dockerfiles");
+
+//var mongodb = mongo
+//    .AddDatabase("SagaOrchestrationDb");
+
+//var mongoReplicaSet = builder
+//    .AddMongoReplicaSet("mongoDb", mongodb.Resource);
+
 var consul = builder.AddContainer("consul", "consul")
     .WithImageTag("1.15.4")
     .WithContainerName("consul")
@@ -56,9 +94,8 @@ var consul = builder.AddContainer("consul", "consul")
             e.IsProxied = false;
             e.IsExternal = false;
         });
-//.WithEndpoint(port: 8500, targetPort: 8500, scheme: "tcp", isProxied: false);
 
-var rabbitmqUsername = builder.AddParameter("RabbitMQ-Username","admin", secret: true);
+var rabbitmqUsername = builder.AddParameter("RabbitMQ-Username", "admin", secret: true);
 var rabbitmqPassword = builder.AddParameter("RabbitMQ-Password", "admin", secret: true);
 var rabbitmq = builder.AddRabbitMQ("rabbitmq", rabbitmqUsername, rabbitmqPassword)
     .WithContainerName("rabbitmq")
@@ -82,9 +119,6 @@ var rabbitmq = builder.AddRabbitMQ("rabbitmq", rabbitmqUsername, rabbitmqPasswor
             e.IsProxied = false;
             e.IsExternal = false;
         })
-    //.WithEndpoint(name: "rabbitmq",port: 5672, targetPort: 5672, isProxied: false)
-    //.WithEndpoint(name: "rabbitmq-management", port: 15672, targetPort: 15672, isProxied: false)
-    //.WithManagementPlugin(port: 15672)
     .WithLifetime(ContainerLifetime.Persistent);
 
 
@@ -106,6 +140,8 @@ identityServerAdminApi.WithHttpHealthCheck("/health")
           .WaitFor(identityServer)
           .WithReference(identityDB)
           .WaitFor(identityDB);
+          //.WithReference(mongoReplicaSet)
+          //.WaitFor(mongoReplicaSet);
 
 
 var identityServerAdminWeb = builder.AddProject<Projects.Identity>("identityserveradminweb", "Identity");
@@ -117,6 +153,8 @@ identityServerAdminWeb.WithHttpHealthCheck("/health")
           .WaitFor(identityServerAdminApi)
           .WithReference(identityDB)
           .WaitFor(identityDB);
+          //.WithReference(mongoReplicaSet)
+          //.WaitFor(mongoReplicaSet);
 
 var productMigrationService = builder.AddProject<Projects.Product_API>("productmigration", "EFMigration")
     .WithReference(productDB)
@@ -130,6 +168,8 @@ productApi.WithHttpHealthCheck("/health")
           .WaitFor(identityServer)
           .WithReference(productDB)
           .WaitFor(productDB);
+          //.WithReference(mongoReplicaSet)
+          //.WaitFor(mongoReplicaSet);
 
 var orderApi = builder.AddProject<Projects.Order_API>("orderapi");
 orderApi.WithHttpHealthCheck("/health")
@@ -138,6 +178,8 @@ orderApi.WithHttpHealthCheck("/health")
           .WaitFor(identityServer)
           .WithReference(orderDB)
           .WaitFor(orderDB);
+          //.WithReference(mongoReplicaSet)
+          //.WaitFor(mongoReplicaSet);
 
 var paymentApi = builder.AddProject<Projects.Payment_API>("paymentapi");
 paymentApi.WithHttpHealthCheck("/health")
@@ -146,6 +188,8 @@ paymentApi.WithHttpHealthCheck("/health")
           .WaitFor(identityServer)
           .WithReference(paymentDB)
           .WaitFor(paymentDB);
+          //.WithReference(mongoReplicaSet)
+          //.WaitFor(mongoReplicaSet);
 
 var ocelotApiGateway = builder.AddProject<Projects.Ocelot_ApiGateway_Web>("ocelotapigateway");
 ocelotApiGateway.WithHttpHealthCheck("/health")
@@ -158,6 +202,8 @@ ocelotApiGateway.WithHttpHealthCheck("/health")
           .WaitFor(orderApi)
           .WithReference(paymentApi)
           .WaitFor(paymentApi);
+          //.WithReference(mongoReplicaSet)
+          //.WaitFor(mongoReplicaSet);
 
 var web = builder.AddProject<Projects.BlazorWebAppOidc>("web");
 web.WithHttpHealthCheck("/health")
@@ -170,6 +216,8 @@ web.WithHttpHealthCheck("/health")
 var orchestrationService = builder.AddProject<Projects.Orchestration_Service>("orchestrationservice")
    .WithReference(identityServer)
    .WaitFor(identityServer);
+   //.WithReference(mongoReplicaSet)
+   //.WaitFor(mongoReplicaSet);
 
 
 builder.Build().Run();

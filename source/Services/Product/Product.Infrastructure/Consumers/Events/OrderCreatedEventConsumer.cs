@@ -1,6 +1,5 @@
 ﻿using BuildingBlocks.EventBus.Events.Order;
 using BuildingBlocks.EventBus.Events.Product;
-using BuildingBlocks.EventBus.Interfaces.Order;
 using BuildingBlocks.MassTransit.Interfaces;
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
@@ -9,7 +8,7 @@ using Product.Infrastructure.Data;
 
 namespace Product.Infrastructure.Consumers.Events;
 
-public class OrderCreatedEventConsumer : IConsumer<IOrderCreatedEvent>
+public class OrderCreatedEventConsumer : IConsumer<OrderCreatedEvent>
 {
     private readonly ProductDbContext _dbContext;
     private readonly ILogger<OrderCreatedEventConsumer> _logger;
@@ -22,7 +21,7 @@ public class OrderCreatedEventConsumer : IConsumer<IOrderCreatedEvent>
         _logger = logger;
     }
 
-    public async Task Consume(ConsumeContext<IOrderCreatedEvent> context)
+    public async Task Consume(ConsumeContext<OrderCreatedEvent> context)
     {       
         var isThereEnoughStock = true;
         foreach (var item in _dbContext.Products.Where(x => context.Message.OrderItems.Select(y => y.ProductId).Contains(x.Id)).AsEnumerable())

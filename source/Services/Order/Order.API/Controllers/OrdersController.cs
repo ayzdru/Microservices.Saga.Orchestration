@@ -1,6 +1,5 @@
 ﻿using BuildingBlocks.Core.Exceptions;
 using BuildingBlocks.Core.Models;
-using BuildingBlocks.EventBus.Interfaces.Order;
 using BuildingBlocks.EventBus.Messages.Order;
 using BuildingBlocks.MassTransit.Interfaces;
 using BuildingBlocks.Web.Common;
@@ -46,41 +45,11 @@ public class OrdersController : BaseController
     [ProducesResponseType(typeof(ApiResult<string>), StatusCodes.Status401Unauthorized)]
     public async Task<ActionResult<ApiResult<string>>> CreateOrder([FromBody] CreateOrderCommand command)
     {
-        await using var transaction = await _orderDbContext.Database.BeginTransactionAsync();
-        try
-        {
-            var result = await Mediator.Send(command);
-            if (result.ApiResult.Success == true)
-            {         
-                await _massTransitService.Send<ICreateOrderMessage>(result.CreateOrderMessage, EventBusConstants.Queues.CreateOrderMessageQueueName);
-                
-                // MassTransit Outbox ile eventleri gönderebilmek için doğrudan dbContext.SaveChanges() çağrısı gereklidir.
-                // Bu sebeple IApplicationDbContext arayüzü kullanılamaz; çünkü Outbox mekanizması DbContext'in kendisine ihtiyaç duyar.
-                // Gerekli nesneler Application katmanından alınır, transaction başlatılır ve SaveChangesAsync metodu kullanılır.
-                //
-                // To send events using MassTransit Outbox, you must call dbContext.SaveChanges() directly.
-                // Therefore, the IApplicationDbContext interface cannot be used, as the Outbox mechanism requires the actual DbContext instance.
-                // Required objects are retrieved from the Application layer, a transaction is started, and the SaveChangesAsync method is used.
-                await _orderDbContext.SaveChangesAsync();
-                await transaction.CommitAsync();
-                return result.ApiResult;
-            }
-            else
-            {
-                transaction.Rollback();
-                return result.ApiResult;
-            }
-        }        
-        catch (DbUpdateException exception) when (exception.InnerException is PostgresException { SqlState: PostgresErrorCodes.UniqueViolation })
-        {
-            transaction.Rollback();
-            throw new DuplicateException("Duplicate order", exception);
-        }
-        catch(Exception ex)
-        {
-            transaction.Rollback();
-            return BadRequest(new ApiResult<string>(false, message: "An error occurred while creating the order."));
-        }
+
+        var result = await Mediator.Send(command);
+
+        await _orderDbContext.SaveChangesAsync();
+        return result;
 
     }
 }

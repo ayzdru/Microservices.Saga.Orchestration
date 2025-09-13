@@ -1,4 +1,4 @@
-﻿using BuildingBlocks.EventBus.Interfaces.Order;
+﻿using BuildingBlocks.EventBus.Events.Order;
 using MassTransit;
 using Microsoft.Extensions.Logging;
 using Order.Core.Enums;
@@ -6,7 +6,7 @@ using Order.Infrastructure.Data;
 
 namespace Order.Infrastructure.Consumers.Events;
 
-public class OrderCompletedEventConsumer : IConsumer<IOrderCompletedEvent>
+public class OrderCompletedEventConsumer : IConsumer<OrderCompletedEvent>
 {
     private readonly OrderDbContext _context;
 
@@ -18,7 +18,7 @@ public class OrderCompletedEventConsumer : IConsumer<IOrderCompletedEvent>
         _logger = logger;
     }
 
-    public async Task Consume(ConsumeContext<IOrderCompletedEvent> context)
+    public async Task Consume(ConsumeContext<OrderCompletedEvent> context)
     {
 
         var order = await _context.Orders.FindAsync(context.Message.OrderId);

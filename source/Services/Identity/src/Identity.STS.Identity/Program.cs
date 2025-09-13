@@ -8,14 +8,7 @@ var builder = WebApplication.CreateBuilder();
 var rabbitMqSettings = builder.Configuration.GetSection("RabbitMQ").Get<RabbitMQSettings>();
 
 builder.Services.AddMassTransit(x =>
-{
-    //x.AddEntityFrameworkOutbox<AdminIdentityDbContext>(o =>
-    //{
-    //    o.QueryDelay = TimeSpan.FromSeconds(1);
-
-    //    o.UsePostgres();
-    //    o.UseBusOutbox();
-    //});
+{    
     x.UsingRabbitMq((context, cfg) =>
     {
         cfg.Host(rabbitMqSettings.Host, rabbitMqSettings.Port, rabbitMqSettings.VirtualHost, h =>
@@ -23,13 +16,8 @@ builder.Services.AddMassTransit(x =>
             h.Username(rabbitMqSettings.Username);
             h.Password(rabbitMqSettings.Password);
         });
-        cfg.AutoStart = true;
-        cfg.ConfigureEndpoints(context);
+        cfg.AutoStart = true;        
     });
-    //x.AddConfigureEndpointsCallback((context, name, cfg) =>
-    //{
-    //    cfg.UseEntityFrameworkOutbox<AdminIdentityDbContext>(context);
-    //});
 });
 builder.Services.AddScoped<IMassTransitService, MassTransitService>();
 builder.AddServiceDefaults();

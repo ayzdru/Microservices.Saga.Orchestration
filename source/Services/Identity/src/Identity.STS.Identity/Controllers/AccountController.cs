@@ -6,8 +6,6 @@
 
 using BuildingBlocks.EventBus.Events.Product;
 using BuildingBlocks.EventBus.Events.User;
-using BuildingBlocks.EventBus.Interfaces.Order;
-using BuildingBlocks.EventBus.Interfaces.User;
 using BuildingBlocks.MassTransit.Interfaces;
 using BuildingBlocks.MassTransit.Services;
 using Identity.Shared.Configuration.Configuration.Identity;
@@ -557,7 +555,7 @@ public class AccountController<TUser, TKey> : Controller
         var result = await _userManager.CreateAsync(user, model.Password);
         if (result.Succeeded)
         {
-            await _massTransitService.Publish<IUserRegisteredEvent>(new UserRegisteredEvent
+            await _massTransitService.Publish<UserRegisteredEvent>(new UserRegisteredEvent
             {
                 UserId = Guid.Parse(user.Id.ToString()),
                 Email = user.Email,

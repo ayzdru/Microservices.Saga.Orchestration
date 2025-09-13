@@ -1,12 +1,12 @@
-﻿using BuildingBlocks.EventBus.Interfaces.Product;
-using MassTransit;
+﻿using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Product.Infrastructure.Data;
+using BuildingBlocks.EventBus.Messages.Product;
 
 namespace Subscription.Infrastructure.Consumers.Messages;
 
-public class StockRollBackMessageConsumer : IConsumer<IStockRollBackMessage>
+public class StockRollBackMessageConsumer : IConsumer<StockRollbackMessage>
 {
     private readonly ProductDbContext _context;
     private readonly ILogger<StockRollBackMessageConsumer> _logger;
@@ -17,7 +17,7 @@ public class StockRollBackMessageConsumer : IConsumer<IStockRollBackMessage>
         _logger = logger;
     }
 
-    public async Task Consume(ConsumeContext<IStockRollBackMessage> context)
+    public async Task Consume(ConsumeContext<StockRollbackMessage> context)
     {
         foreach (var item in context.Message.OrderItems)
         {
