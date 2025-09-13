@@ -98,7 +98,9 @@ namespace Product.API
                     app.MapOpenApi();
                     app.UseSwaggerUI(options =>
                     {
-                        options.SwaggerEndpoint("/openapi/v1.json", "v1");                       
+                        options.SwaggerEndpoint("/openapi/v1.json", "v1");
+                        options.OAuthUsePkce();
+                        options.OAuthClientId("product-api-swaggerui-client");
                     });
 
                 }

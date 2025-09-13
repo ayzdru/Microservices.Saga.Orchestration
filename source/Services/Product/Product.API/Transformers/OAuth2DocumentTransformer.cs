@@ -15,7 +15,7 @@ namespace Product.API.Transformers
                 {
                     ["OAuth2"] = new OpenApiSecurityScheme
                     {
-                        Name = "OAuth2",
+                        Name = "OAuth2",                        
                         Type = SecuritySchemeType.OAuth2,
                         Flows = new OpenApiOAuthFlows
                         {

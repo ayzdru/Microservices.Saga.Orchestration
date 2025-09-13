@@ -1,8 +1,9 @@
 using Aspire.Hosting;
 
 var builder = DistributedApplication.CreateBuilder(args);
-
-var postgres = builder.AddPostgres("postgres")
+var postgresUsername = builder.AddParameter("PostgreSQL-Username", "postgres", secret: true);
+var postgresPassword = builder.AddParameter("PostgreSQL-Password", "postgres", secret: true);
+var postgres = builder.AddPostgres("postgres", postgresUsername, postgresPassword)
     .WithImageTag("17")
     .WithContainerName("postgres")
     .WithVolume("postgresql_data", "/var/lib/postgresql/data")
@@ -31,11 +32,11 @@ var postgres = builder.AddPostgres("postgres")
         })
     .WithVolume("pgadmin_data", "/var/lib/pgadmin").WithLifetime(ContainerLifetime.Persistent));
 var identityDatabaseName = "Identity";
-var creationScript = $$"""    
-    CREATE DATABASE '{{identityDatabaseName}}';
-    CREATE USER administrator WITH SUPERUSER PASSWORD 'Password1@_';
-    """;
-var identityDB = postgres.AddDatabase(identityDatabaseName).WithCreationScript(creationScript);
+//var creationScript = $$"""    
+//    CREATE DATABASE '{{identityDatabaseName}}';
+//    CREATE USER postgres WITH SUPERUSER PASSWORD 'postgres';
+//    """;
+var identityDB = postgres.AddDatabase(identityDatabaseName); //.WithCreationScript(creationScript);
 var orderDB = postgres.AddDatabase("Order");
 var paymentDB = postgres.AddDatabase("Payment");
 var productDB = postgres.AddDatabase("Product");
@@ -57,8 +58,8 @@ var consul = builder.AddContainer("consul", "consul")
         });
 //.WithEndpoint(port: 8500, targetPort: 8500, scheme: "tcp", isProxied: false);
 
-var rabbitmqUsername = builder.AddParameter("admin", secret: true);
-var rabbitmqPassword = builder.AddParameter("Password1", secret: true);
+var rabbitmqUsername = builder.AddParameter("RabbitMQ-Username","admin", secret: true);
+var rabbitmqPassword = builder.AddParameter("RabbitMQ-Password", "admin", secret: true);
 var rabbitmq = builder.AddRabbitMQ("rabbitmq", rabbitmqUsername, rabbitmqPassword)
     .WithContainerName("rabbitmq")
     .WithImageTag("4.1.4-management")
@@ -117,10 +118,6 @@ identityServerAdminWeb.WithHttpHealthCheck("/health")
           .WithReference(identityDB)
           .WaitFor(identityDB);
 
-
-
-
-
 var productMigrationService = builder.AddProject<Projects.Product_API>("productmigration", "EFMigration")
     .WithReference(productDB)
     .WaitFor(productDB);
@@ -169,5 +166,10 @@ web.WithHttpHealthCheck("/health")
    .WaitFor(identityServer)
    .WithReference(ocelotApiGateway)
    .WaitFor(ocelotApiGateway);
+
+var orchestrationService = builder.AddProject<Projects.Orchestration_Service>("orchestrationservice")
+   .WithReference(identityServer)
+   .WaitFor(identityServer);
+
 
 builder.Build().Run();

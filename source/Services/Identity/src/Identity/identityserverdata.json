@@ -70,13 +70,73 @@
           "role",
           "name"
         ]
-      }
+      },
+      {
+        "Name": "ocelot",
+        "DisplayName": "Ocelet API Gateway Full Access",
+        "Required": true,
+        "UserClaims": [
+          "role",
+          "name"
+        ]
+      },
+      {
+        "Name": "order",
+        "DisplayName": "Order API Full Access",
+        "Required": true,
+        "UserClaims": [
+          "role",
+          "name"
+        ]
+      },
+      {
+        "Name": "product",
+        "DisplayName": "Product API Full Access",
+        "Required": true,
+        "UserClaims": [
+          "role",
+          "name"
+        ]
+      },
+      {
+        "Name": "payment",
+        "DisplayName": "Payment API Full Access",
+        "Required": true,
+        "UserClaims": [
+          "role",
+          "name"
+        ]
+      }      
     ],
     "ApiResources": [
       {
         "Name": "AdminClientId_api",
         "Scopes": [
           "AdminClientId_api"
+        ]
+      },
+      {
+        "Name": "ocelot-api-gateway",
+        "Scopes": [
+          "ocelot"
+        ]
+      },
+      {
+        "Name": "order-api",
+        "Scopes": [
+          "order"
+        ]
+      },
+      {
+        "Name": "payment-api",
+        "Scopes": [
+          "payment"
+        ]
+      },
+      {
+        "Name": "product-api",
+        "Scopes": [
+          "product"
         ]
       }
     ],
@@ -127,6 +187,114 @@
         ],
         "AllowedCorsOrigins": [
           "https://localhost:44302"
+        ]
+      },
+      {
+        "ClientId": "blazor-web-hybrid-client",
+        "ClientName": "Blazor Web Hybrid Client",
+        "ClientUri": "https://localhost:5001",
+        "AllowedGrantTypes": [
+          "authorization_code"
+        ],
+        "RequirePkce": true,
+        "ClientSecrets": [
+          {
+            "Value": "secret"
+          }
+        ],
+        "RedirectUris": [
+          "https://localhost:5001/signin-oidc"
+        ],
+        "FrontChannelLogoutUri": "https://localhost:5001/signout-oidc",
+        "PostLogoutRedirectUris": [
+          "https://localhost:5001/signout-callback-oidc"
+        ],
+        "AllowedCorsOrigins": [
+          "https://localhost:5001"
+        ],
+        "AllowOfflineAccess": true,
+        "AllowedScopes": [
+          "openid",
+          "email",
+          "profile",
+          "roles",
+          "ocelot",
+          "order",
+          "payment",
+          "product",
+          "offline_access"
+        ]
+      },
+      {
+        "ClientId": "ocelot-apigateway-swaggerui-client",
+        "ClientName": "Ocelot API Gateway Swagger UI Client",
+        "AllowedGrantTypes": [
+          "authorization_code"
+        ],
+        "RequireClientSecret": false,
+        "RequirePkce": true,
+        "RedirectUris": [
+          "https://localhost:7227/swagger/oauth2-redirect.html"
+        ],
+        "AllowedScopes": [
+          "ocelot"
+        ],
+        "AllowedCorsOrigins": [
+          "https://localhost:7227"
+        ]
+      },
+      {
+        "ClientId": "order-api-swaggerui-client",
+        "ClientName": "Order API Swagger UI Client",
+        "AllowedGrantTypes": [
+          "authorization_code"
+        ],
+        "RequireClientSecret": false,
+        "RequirePkce": true,
+        "RedirectUris": [
+          "https://localhost:7134/swagger/oauth2-redirect.html"
+        ],
+        "AllowedScopes": [
+          "order"
+        ],
+        "AllowedCorsOrigins": [
+          "https://localhost:7134"
+        ]
+      },
+      {
+        "ClientId": "product-api-swaggerui-client",
+        "ClientName": "Product API Swagger UI Client",
+        "AllowedGrantTypes": [
+          "authorization_code"
+        ],
+        "RequireClientSecret": false,
+        "RequirePkce": true,
+        "RedirectUris": [
+          "https://localhost:7254/swagger/oauth2-redirect.html"
+        ],
+        "AllowedScopes": [
+          "AdminClientId_api"
+        ],
+        "AllowedCorsOrigins": [
+          "https://localhost:7254"
+        ]
+      },
+      {
+        "ClientId": "payment-api-swaggerui-client",
+        "ClientName": "Payment API Swagger UI Client",
+        "AllowedGrantTypes": [
+          "authorization_code"
+        ],
+        "RequireClientSecret": false,
+        "RequirePkce": true,
+        "RedirectUris": [
+          "https://localhost:7197/swagger/oauth2-redirect.html"
+        ],
+        "AllowedScopes": [
+          "AdminClientId_api"
+        ],
+        "AllowedCorsOrigins": [
+          "https://localhost:7197"
         ]
       }
     ]

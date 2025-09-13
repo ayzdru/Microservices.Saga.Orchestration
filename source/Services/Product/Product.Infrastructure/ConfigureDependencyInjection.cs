@@ -58,7 +58,7 @@ namespace Product.Infrastructure
 
             builder.Services.AddMassTransit(x =>
             {
-                x.AddConsumer<UserRegisteredEventConsumer>();
+                x.AddConsumer<ProductUserRegisteredEventConsumer>();
                 x.AddConsumer<OrderCreatedEventConsumer>();
                 x.AddConsumer<StockRollBackMessageConsumer>();
 
@@ -78,7 +78,7 @@ namespace Product.Infrastructure
                         h.Password(rabbitMqSettings.Password);
                     });
                     cfg.AutoStart = true;
-                    cfg.ConfigureEndpoints(context);
+                    cfg.ConfigureEndpoints(context);                   
                     cfg.ReceiveEndpoint(EventBusConstants.Queues.OrderCreatedEventQueueName, e =>
                     {
                         e.ConfigureConsumer<OrderCreatedEventConsumer>(context);                        

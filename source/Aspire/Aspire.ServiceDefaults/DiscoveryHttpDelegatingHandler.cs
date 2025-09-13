@@ -26,17 +26,19 @@ namespace Aspire.ServiceDefaults
 
             // Query Consul for the service
             var services = await consulClient.Catalog.Service(originalHost, cancellationToken);
-            if (services.Response == null || services.Response.Length == 0)
-                throw new InvalidOperationException($"Service '{originalHost}' not found in Consul.");
-
-            // Use the first available service instance
-            var service = services.Response[0];
-            var newUriBuilder = new UriBuilder(request.RequestUri)
+            if (services.Response != null && services.Response.Length != 0)
             {
-                Host = service.ServiceAddress,
-                Port = service.ServicePort
-            };
-            request.RequestUri = newUriBuilder.Uri;
+                // Use the first available service instance
+                var service = services.Response[0];
+                var newUriBuilder = new UriBuilder(request.RequestUri)
+                {
+                    Host = service.ServiceAddress,
+                    Port = service.ServicePort
+                };
+                request.RequestUri = newUriBuilder.Uri;
+            }
+
+          
 
             return await base.SendAsync(request, cancellationToken);
         }

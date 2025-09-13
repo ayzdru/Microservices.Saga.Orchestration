@@ -5,7 +5,7 @@ using BuildingBlocks.EventBus.Messages.Payment;
 using MassTransit;
 using Microsoft.Extensions.Logging;
 
-namespace Payment.Infrastructure.Consumers;
+namespace Payment.Infrastructure.Consumers.Events;
 
 public class CompletePaymentMessageConsumer : IConsumer<IPaymentCompleteMessage>
 {

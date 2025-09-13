@@ -4,7 +4,7 @@ using Microsoft.Extensions.Logging;
 using Order.Core.Enums;
 using Order.Infrastructure.Data;
 
-namespace Order.Infrastructure.Consumers;
+namespace Order.Infrastructure.Consumers.Events;
 
 public class OrderFailedEventConsumer : IConsumer<IOrderFailedEvent>
 {

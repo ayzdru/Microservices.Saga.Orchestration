@@ -27,6 +27,7 @@ builder.Services.AddAuthentication(options =>
     options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
     options.Authority = identitySettings.Authority;
     options.ClientId = identitySettings.ClientId;
+    options.ClientSecret = identitySettings.ClientSecret;   
     options.CallbackPath = identitySettings.CallbackPath;
     options.SignedOutCallbackPath = identitySettings.SignedOutCallbackPath;
     options.RemoteSignOutPath = identitySettings.RemoteSignOutPath;
@@ -35,7 +36,7 @@ builder.Services.AddAuthentication(options =>
     options.SaveTokens = true;
     options.MapInboundClaims = false;
     options.TokenValidationParameters.NameClaimType = JwtRegisteredClaimNames.Name;
-    options.TokenValidationParameters.RoleClaimType = "roles";
+    options.TokenValidationParameters.RoleClaimType = "roles";    
     foreach (var scope in identitySettings.Scope)
     {
         options.Scope.Add(scope);

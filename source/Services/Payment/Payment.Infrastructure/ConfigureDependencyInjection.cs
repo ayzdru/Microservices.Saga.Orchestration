@@ -20,9 +20,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Payment.Application;
 using Payment.Application.Interfaces;
-using Payment.Infrastructure.Consumers;
+using Payment.Infrastructure.Consumers.Events;
 using Payment.Infrastructure.Data;
-using Product.Infrastructure.Consumers.Events;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -54,7 +53,7 @@ namespace Payment.Infrastructure
 
             builder.Services.AddMassTransit(x =>
             {
-                x.AddConsumer<UserRegisteredEventConsumer>();
+                x.AddConsumer<PaymentUserRegisteredEventConsumer>();
                 x.AddConsumer<CompletePaymentMessageConsumer>();
                 x.AddEntityFrameworkOutbox<PaymentDbContext>(o =>
                 {
@@ -73,6 +72,7 @@ namespace Payment.Infrastructure
                     });
                     cfg.AutoStart = true;
                     cfg.ConfigureEndpoints(context);
+                   
                     cfg.ReceiveEndpoint(EventBusConstants.Queues.CompletePaymentMessageQueueName, e =>
                     {
                         e.ConfigureConsumer<CompletePaymentMessageConsumer>(context);

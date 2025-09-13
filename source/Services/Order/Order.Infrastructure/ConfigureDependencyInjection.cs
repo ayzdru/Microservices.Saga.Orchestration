@@ -1,5 +1,6 @@
 ﻿using BuildingBlocks.Core.Entities;
 using BuildingBlocks.Core.Interfaces;
+using BuildingBlocks.EventBus.Events.User;
 using BuildingBlocks.Infrastructure;
 using BuildingBlocks.Infrastructure.Data.Stores;
 using BuildingBlocks.MassTransit.Interfaces;
@@ -18,7 +19,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Order.Application;
 using Order.Application.Interfaces;
-using Order.Infrastructure.Consumers;
+using Order.Infrastructure.Consumers.Events;
 using Order.Infrastructure.Data;
 using System;
 using System.Collections.Generic;
@@ -49,6 +50,7 @@ namespace Order.Infrastructure
 
             builder.Services.AddMassTransit(x =>
             {
+                x.AddConsumer<OrderUserRegisteredEventConsumer>();
                 x.AddConsumer<OrderCompletedEventConsumer>();
                 x.AddConsumer<OrderFailedEventConsumer>();
 
@@ -67,7 +69,7 @@ namespace Order.Infrastructure
                         h.Password(rabbitMqSettings.Password);
                     });
                     cfg.AutoStart = true;
-                    cfg.ConfigureEndpoints(context);
+                    cfg.ConfigureEndpoints(context);                   
                     cfg.ReceiveEndpoint(EventBusConstants.Queues.OrderCompletedEventQueueName, x =>
                     {
                         x.ConfigureConsumer<OrderCompletedEventConsumer>(context);

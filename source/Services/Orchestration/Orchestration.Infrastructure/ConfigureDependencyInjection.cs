@@ -21,9 +21,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Orchestration.Application;
 using Orchestration.Application.Interfaces;
+using Orchestration.Infrastructure.Consumers.Events;
 using Orchestration.Infrastructure.Data;
 using Orchestration.Infrastructure.StateMachines.Order;
-using Product.Infrastructure.Consumers.Events;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -58,7 +58,7 @@ namespace Orchestration.Infrastructure
             var rabbitMqSettings = builder.Configuration.GetSection("RabbitMQ").Get<RabbitMQSettings>();
             builder.Services.AddMassTransit(x =>
             {
-                x.AddConsumer<UserRegisteredEventConsumer>();
+                x.AddConsumer<OrchestrationUserRegisteredEventConsumer>();
                 x.UsingRabbitMq((context, cfg) =>
                 {
                     cfg.Host(rabbitMqSettings.Host, rabbitMqSettings.Port, rabbitMqSettings.VirtualHost, h =>
@@ -66,7 +66,7 @@ namespace Orchestration.Infrastructure
                         h.Username(rabbitMqSettings.Username);
                         h.Password(rabbitMqSettings.Password);
                     });
-                    cfg.ConfigureEndpoints(context);
+                    cfg.ConfigureEndpoints(context);                    
                     cfg.ReceiveEndpoint(EventBusConstants.Queues.CreateOrderMessageQueueName, e => { e.ConfigureSaga<OrderState>(context); });
                 });
                 x.AddEntityFrameworkOutbox<OrchestrationDbContext>(o =>

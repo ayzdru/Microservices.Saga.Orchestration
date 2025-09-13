@@ -1,4 +1,5 @@
-﻿using BuildingBlocks.EventBus.Events.Product;
+﻿using BuildingBlocks.EventBus.Events.Order;
+using BuildingBlocks.EventBus.Events.Product;
 using BuildingBlocks.EventBus.Interfaces.Order;
 using BuildingBlocks.MassTransit.Interfaces;
 using MassTransit;
@@ -62,7 +63,7 @@ public class OrderCreatedEventConsumer : IConsumer<IOrderCreatedEvent>
                 }
 
                 stock.StockDecrease(item.Count);
-                          
+                await _dbContext.SaveChangesAsync();
             }
 
             _logger.LogInformation("Stock was reserved with CorrelationId Id: {MessageCorrelationId}", context.Message.CorrelationId);
@@ -74,7 +75,7 @@ public class OrderCreatedEventConsumer : IConsumer<IOrderCreatedEvent>
             };
 
             await _massTransitService.Publish(stockReservedEvent);
-            await _dbContext.SaveChangesAsync();
+          
         }
     }
 }

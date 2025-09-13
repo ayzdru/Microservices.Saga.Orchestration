@@ -6,7 +6,7 @@
         public const string OrderCreatedEventQueueName = "order-created-queue";
         public const string OrderCompletedEventQueueName = "order-completed-queue";
         public const string OrderFailedEventQueueName = "order-failed-queue";
-        public const string UserCreatedEventQueueName = "user-created-event-queue";
+        public const string UserRegisteredEventQueueName = "user-registered-queue";
 
         // messages
         public const string CreateOrderMessageQueueName = "create-order-message-queue";
