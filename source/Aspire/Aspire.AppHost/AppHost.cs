@@ -2,8 +2,12 @@ using Aspire.AppHost;
 using Aspire.Hosting;
 
 var builder = DistributedApplication.CreateBuilder(args);
+
+// PostgreSQL kullanýcý adý ve þifresi parametre olarak ekleniyor (gizli)
 var postgresUsername = builder.AddParameter("PostgreSQL-Username", "postgres", secret: true);
 var postgresPassword = builder.AddParameter("PostgreSQL-Password", "postgres", secret: true);
+
+// PostgreSQL container'ý ve ayarlarý ekleniyor
 var postgres = builder.AddPostgres("postgres", postgresUsername, postgresPassword)
     .WithImageTag("17")
     .WithContainerName("postgres")
@@ -18,6 +22,7 @@ var postgres = builder.AddPostgres("postgres", postgresUsername, postgresPasswor
             e.IsExternal = false;
         })
     .WithLifetime(ContainerLifetime.Persistent)
+    // pgAdmin container'ý ekleniyor
     .WithPgAdmin(pgAdmin =>
     pgAdmin.WithContainerName("pgAdmin")
     .WithImageTag("9.8.0")
@@ -44,7 +49,7 @@ var orchestrationDB = postgres.AddDatabase("Orchestration");
 
 
 
-//MONGODB With REPLICASET
+//MONGODB With REPLICASET (PostgreSQL yerine MongoDb kullanmak isterseniz diye buraya býrakýyorum.)
 //var mongoUsername = builder.AddParameter("mongo-user", "admin");
 //var mongoPassword = builder.AddParameter("mongo-password", "admin");
 //var mongo = builder
@@ -95,6 +100,7 @@ var consul = builder.AddContainer("consul", "consul")
             e.IsExternal = false;
         });
 
+// RabbitMQ container'ý ve parametreleri ekleniyor (message broker)
 var rabbitmqUsername = builder.AddParameter("RabbitMQ-Username", "admin", secret: true);
 var rabbitmqPassword = builder.AddParameter("RabbitMQ-Password", "admin", secret: true);
 var rabbitmq = builder.AddRabbitMQ("rabbitmq", rabbitmqUsername, rabbitmqPassword)
@@ -121,11 +127,12 @@ var rabbitmq = builder.AddRabbitMQ("rabbitmq", rabbitmqUsername, rabbitmqPasswor
         })
     .WithLifetime(ContainerLifetime.Persistent);
 
-
+// Identity Server Migration servisi ekleniyor
 var identityMigrationService = builder.AddProject<Projects.Identity>("identitymigration", "EFMigration")
     .WithReference(identityDB)
     .WaitFor(identityDB);
 
+// Identity Server ekleniyor
 var identityServer = builder.AddProject<Projects.Identity_STS_Identity>("identityserver");
 identityServer.WithHttpHealthCheck("/health")
       .WaitForCompletion(identityMigrationService, 0)
@@ -133,6 +140,7 @@ identityServer.WithHttpHealthCheck("/health")
       .WaitFor(identityDB)
       .WaitFor(consul);
 
+// Identity Server Admin API'si ekleniyor
 var identityServerAdminApi = builder.AddProject<Projects.Identity_Api>("identityserveradminapi");
 identityServerAdminApi.WithHttpHealthCheck("/health")
           .WaitFor(consul)
@@ -140,10 +148,8 @@ identityServerAdminApi.WithHttpHealthCheck("/health")
           .WaitFor(identityServer)
           .WithReference(identityDB)
           .WaitFor(identityDB);
-          //.WithReference(mongoReplicaSet)
-          //.WaitFor(mongoReplicaSet);
 
-
+// Identity Server Admin Web ekleniyor
 var identityServerAdminWeb = builder.AddProject<Projects.Identity>("identityserveradminweb", "Identity");
 identityServerAdminWeb.WithHttpHealthCheck("/health")
           .WaitFor(consul)
@@ -153,13 +159,13 @@ identityServerAdminWeb.WithHttpHealthCheck("/health")
           .WaitFor(identityServerAdminApi)
           .WithReference(identityDB)
           .WaitFor(identityDB);
-          //.WithReference(mongoReplicaSet)
-          //.WaitFor(mongoReplicaSet);
 
+// Product Migration servisi ekleniyor
 var productMigrationService = builder.AddProject<Projects.Product_API>("productmigration", "EFMigration")
     .WithReference(productDB)
     .WaitFor(productDB);
 
+// Product API'si ekleniyor
 var productApi = builder.AddProject<Projects.Product_API>("productapi");
 productApi.WithHttpHealthCheck("/health")
            .WaitForCompletion(productMigrationService, 0)
@@ -168,9 +174,8 @@ productApi.WithHttpHealthCheck("/health")
           .WaitFor(identityServer)
           .WithReference(productDB)
           .WaitFor(productDB);
-          //.WithReference(mongoReplicaSet)
-          //.WaitFor(mongoReplicaSet);
 
+// Order API'si ekleniyor
 var orderApi = builder.AddProject<Projects.Order_API>("orderapi");
 orderApi.WithHttpHealthCheck("/health")
           .WaitFor(consul)
@@ -178,9 +183,8 @@ orderApi.WithHttpHealthCheck("/health")
           .WaitFor(identityServer)
           .WithReference(orderDB)
           .WaitFor(orderDB);
-          //.WithReference(mongoReplicaSet)
-          //.WaitFor(mongoReplicaSet);
 
+// Payment API'si ekleniyor
 var paymentApi = builder.AddProject<Projects.Payment_API>("paymentapi");
 paymentApi.WithHttpHealthCheck("/health")
           .WaitFor(consul)
@@ -188,9 +192,8 @@ paymentApi.WithHttpHealthCheck("/health")
           .WaitFor(identityServer)
           .WithReference(paymentDB)
           .WaitFor(paymentDB);
-          //.WithReference(mongoReplicaSet)
-          //.WaitFor(mongoReplicaSet);
 
+// API Gateway ekleniyor (Ocelot)
 var ocelotApiGateway = builder.AddProject<Projects.Ocelot_ApiGateway_Web>("ocelotapigateway");
 ocelotApiGateway.WithHttpHealthCheck("/health")
           .WaitFor(consul)
@@ -202,9 +205,8 @@ ocelotApiGateway.WithHttpHealthCheck("/health")
           .WaitFor(orderApi)
           .WithReference(paymentApi)
           .WaitFor(paymentApi);
-          //.WithReference(mongoReplicaSet)
-          //.WaitFor(mongoReplicaSet);
 
+// Blazor Web uygulamasý ekleniyor
 var web = builder.AddProject<Projects.BlazorWebAppOidc>("web");
 web.WithHttpHealthCheck("/health")
    .WaitFor(consul)
@@ -213,11 +215,11 @@ web.WithHttpHealthCheck("/health")
    .WithReference(ocelotApiGateway)
    .WaitFor(ocelotApiGateway);
 
+// Orkestrasyon servisi ekleniyor
 var orchestrationService = builder.AddProject<Projects.Orchestration_Service>("orchestrationservice")
    .WithReference(identityServer)
    .WaitFor(identityServer);
-   //.WithReference(mongoReplicaSet)
-   //.WaitFor(mongoReplicaSet);
 
 
+// Uygulama baþlatýlýyor
 builder.Build().Run();

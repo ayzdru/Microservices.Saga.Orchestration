@@ -25,7 +25,6 @@ namespace Order.API
                     options.RequireHttpsMetadata = bool.Parse(jwtSettings["RequireHttpsMetadata"] ?? "true");
                     options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
                     {
-                        // Keycloak tokenlarýnda "aud" (audience) kontrolü için
                         ValidateAudience = true
                     };
                 });
