@@ -85,6 +85,7 @@ namespace Product.API
                 //    });
                 //    options.AddDocumentTransformer<OAuth2DocumentTransformer>();
                 //});
+                builder.Services.AddEndpointsApiExplorer();
                 builder.Services.AddSwaggerGen(options =>
                 {
                     options.SwaggerDoc("v1", new OpenApiInfo { Title = "Product API", Version = "v1" });
@@ -103,6 +104,19 @@ namespace Product.API
                                 }
                             }
                         }
+                    });
+                    options.AddSecurityRequirement(new OpenApiSecurityRequirement{
+                    {
+                        new OpenApiSecurityScheme
+                        {
+                            Reference = new OpenApiReference
+                            {
+                                Type = ReferenceType.SecurityScheme,
+                                Id = "oauth2"
+                            }
+                        },
+                        new[] { "product" }
+                    }                
                     });
                     var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
                     options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
