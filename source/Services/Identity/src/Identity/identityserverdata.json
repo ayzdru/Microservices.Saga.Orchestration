@@ -273,7 +273,7 @@
           "https://localhost:7254/swagger/oauth2-redirect.html"
         ],
         "AllowedScopes": [
-          "AdminClientId_api"
+          "product"
         ],
         "AllowedCorsOrigins": [
           "https://localhost:7254"
@@ -291,7 +291,7 @@
           "https://localhost:7197/swagger/oauth2-redirect.html"
         ],
         "AllowedScopes": [
-          "AdminClientId_api"
+          "payment"
         ],
         "AllowedCorsOrigins": [
           "https://localhost:7197"

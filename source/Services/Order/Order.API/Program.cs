@@ -1,8 +1,10 @@
 
 using BuildingBlocks.Web;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.OpenApi.Models;
 using Order.Infrastructure;
 using Order.Infrastructure.Data;
+using System.Reflection;
 
 namespace Order.API
 {
@@ -35,7 +37,30 @@ namespace Order.API
             builder.Services.AddAuthorization();
 
             // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-            builder.Services.AddOpenApi();
+            //builder.Services.AddOpenApi();
+
+            builder.Services.AddSwaggerGen(options =>
+            {
+                options.SwaggerDoc("v1", new OpenApiInfo { Title = "Order API", Version = "v1" });
+                options.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
+                {
+                    Type = SecuritySchemeType.OAuth2,
+                    Flows = new OpenApiOAuthFlows
+                    {
+                        AuthorizationCode = new OpenApiOAuthFlow
+                        {
+                            AuthorizationUrl = new Uri("https://localhost:44310/connect/authorize"),
+                            TokenUrl = new Uri("https://localhost:44310/connect/token"),
+                            Scopes = new Dictionary<string, string>
+                                {
+                                    { "order", "Order API Full Access" },
+                                }
+                        }
+                    }
+                });
+                var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
+            });
 
             builder.Services.AddScoped<TokenHandler>();
 
@@ -49,17 +74,24 @@ namespace Order.API
             var app = builder.Build();
             using (var scope = app.Services.CreateScope())
             {
-                var  initializer = scope.ServiceProvider.GetRequiredService<OrderDbContextInitializer>();
+                var initializer = scope.ServiceProvider.GetRequiredService<OrderDbContextInitializer>();
                 await initializer.InitialiseAsync();
-                await initializer.SeedAsync();               
+                await initializer.SeedAsync();
             }
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
-                app.MapOpenApi();
+                //app.MapOpenApi();
+                app.UseSwagger();
                 app.UseSwaggerUI(options =>
                 {
-                    options.SwaggerEndpoint("/openapi/v1.json", "v1");
+                    options.SwaggerEndpoint("v1/swagger.json", "Order API V1");
+                    options.OAuthClientId("order-api-swaggerui-client");
+                    //options.OAuthClientSecret("secret");
+                    options.OAuthAppName("saga-orchestration");
+                    options.OAuthScopeSeparator(" ");
+                    options.OAuthScopes("order");
+                    options.OAuthUsePkce();
                 });
             }
 

@@ -16,6 +16,7 @@ using Product.Application.Interfaces;
 using Product.Application.Queries;
 using Product.Infrastructure;
 using Product.Infrastructure.Data;
+using System.Reflection;
 
 namespace Product.API
 {
@@ -68,21 +69,43 @@ namespace Product.API
                 builder.AddServiceDefaults();
                 builder.AddInfrastructure().AddWeb();
                 builder.Services.AddAuthorizationBuilder();
-              
+
 
                 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-                builder.Services.AddOpenApi(options =>
+                //builder.Services.AddOpenApi(options =>
+                //{
+                //    options.AddDocumentTransformer((document, context, cancellationToken) =>
+                //    {
+                //        document.Info.Contact = new OpenApiContact
+                //        {
+                //            Name = "Ayaz DURU",
+                //            Email = "mail@ayazduru.com.tr"
+                //        };
+                //        return Task.CompletedTask;
+                //    });
+                //    options.AddDocumentTransformer<OAuth2DocumentTransformer>();
+                //});
+                builder.Services.AddSwaggerGen(options =>
                 {
-                    options.AddDocumentTransformer((document, context, cancellationToken) =>
+                    options.SwaggerDoc("v1", new OpenApiInfo { Title = "Product API", Version = "v1" });
+                    options.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
                     {
-                        document.Info.Contact = new OpenApiContact
+                        Type = SecuritySchemeType.OAuth2,
+                        Flows = new OpenApiOAuthFlows
                         {
-                            Name = "Ayaz DURU",
-                            Email = "mail@ayazduru.com.tr"
-                        };
-                        return Task.CompletedTask;
+                            AuthorizationCode = new OpenApiOAuthFlow
+                            {
+                                AuthorizationUrl = new Uri("https://localhost:44310/connect/authorize"),
+                                TokenUrl = new Uri("https://localhost:44310/connect/token"),
+                                Scopes = new Dictionary<string, string>
+                                {
+                                    { "product", "Product API Full Access" },
+                                }
+                            }
+                        }
                     });
-                    options.AddDocumentTransformer<OAuth2DocumentTransformer>();
+                    var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                    options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
                 });
 
                 var app = builder.Build();
@@ -95,12 +118,17 @@ namespace Product.API
                 // Configure the HTTP request pipeline.
                 if (app.Environment.IsDevelopment())
                 {
-                    app.MapOpenApi();
+                    //app.MapOpenApi();
+                    app.UseSwagger();
                     app.UseSwaggerUI(options =>
                     {
-                        options.SwaggerEndpoint("/openapi/v1.json", "v1");
-                        options.OAuthUsePkce();
+                        options.SwaggerEndpoint("v1/swagger.json", "Product API V1");
                         options.OAuthClientId("product-api-swaggerui-client");
+                        //options.OAuthClientSecret("secret");
+                        options.OAuthAppName("saga-orchestration");
+                        options.OAuthScopeSeparator(" ");
+                        options.OAuthScopes("product");
+                        options.OAuthUsePkce();
                     });
 
                 }
