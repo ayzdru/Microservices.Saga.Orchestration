@@ -416,3 +416,6 @@ FodyWeavers.xsd
 *.msm
 *.msp
 /.idea/.idea.Microservices.Saga.Orchestration/.idea
+/source/Services/Identity/src/Identity/Log
+/source/Services/Identity/src/Identity.Api/Log
+/source/Services/Identity/src/Identity.STS.Identity/Log
